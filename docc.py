@@ -10,13 +10,16 @@ import argparse
 def main():
     """Main function for the whole thing. Parse parameters and calls the appropriate command"""
 
-    params = parse_arguments()
-    print "Debug: %s" % params
-    if params.command == 'config':
-        config_command(params)
-    else:
-        raise Exception("Unknown command line command: '%s'" % params.command)
+    print "Docc -- Digital Ocean Command Center\n"
 
+    params = parse_arguments()
+    try:
+        if params.command == 'config':
+            config_command(params)
+        else:
+            raise Exception("Unknown command line command: '%s'" % params.command)
+    except Exception as e:
+        print "Error: %s" % e
 
 def parse_arguments():
     """Create the argument parser and parse the command line parameters"""
@@ -41,6 +44,11 @@ def parse_arguments():
         nargs=1,
         metavar='KEY'
     )
+    group.add_argument(
+        '--get-all',
+        help='get all key, value pairs from the configuration file',
+        action='store_true'
+    )
 
     return parser.parse_args()
 
@@ -58,6 +66,8 @@ def config_command(parameters):
         value = parameters.set[1]
         config[key] = value
         print "%s: %s" % (key, config[key])
+    elif parameters.get_all:
+        raise NotImplementedError("--get-all: Not yet implemented")
     else:
         assert False, "Something went wrong when parsing the parameters, I did not find any."
 
