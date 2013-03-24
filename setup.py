@@ -11,5 +11,4 @@ setup(
     url='https://github.com/dsegonds/Docc',
     author='David Segonds',
     author_email='david@segonds.org',
-    install_requires=[],
 )
