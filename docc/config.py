@@ -37,7 +37,7 @@ class Configuration(object):
         """
         valid_values = ['api_key', 'client_id']
         if key not in valid_values:
-            raise Exception("Given key is not one of %s" % valid_values)
+            raise Exception("Given key '%s' is not in %s" % (key,valid_values))
         self._config.set(self._section,key,value)
         with open(self._location,"w") as f:
             self._config.write(f)
