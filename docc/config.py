@@ -37,7 +37,7 @@ class Configuration(object):
         """
         valid_values = ['api_key', 'client_id']
         if key not in valid_values:
-            raise Exception("Given key '%s' is not in %s" % (key,valid_values))
+            raise ValueError("Given key '%s' is not in %s" % (key,valid_values))
         self._config.set(self._section,key,value)
         with open(self._location,"w") as f:
             self._config.write(f)
@@ -45,5 +45,4 @@ class Configuration(object):
     def api_key(self):
         """Returns the API key.
         """
-        assert self._config is not None
-        return
+        raise NotImplementedError("Not yet implemented")
