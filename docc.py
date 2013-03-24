@@ -16,6 +16,8 @@ def main():
     try:
         if params.command == 'config':
             config_command(params)
+        elif params.command == 'droplet':
+            droplet_command(params)
         else:
             raise Exception("Unknown command line command: '%s'" % params.command)
     except Exception as e:
@@ -29,7 +31,7 @@ def parse_arguments():
     #parser.add_argument('--foo', action='store_true', help='foo help')
     subparsers = parser.add_subparsers(help='You need to use one of those commands', dest='command')
 
-    # Create a parser for the config command
+    # Create a parser for the 'config' command
     parser_config = subparsers.add_parser('config', help='config let you modify your configuration file')
     group = parser_config.add_mutually_exclusive_group(required=True)
     group.add_argument(
@@ -50,11 +52,20 @@ def parse_arguments():
         action='store_true'
     )
 
+    # Create a parser for the 'droplet' command
+    parser_droplet = subparsers.add_parser('droplet', help='droplet let you manage your droplets')
+    group = parser_droplet.add_mutually_exclusive_group(required=True)
+    group.add_argument(
+        '--list',
+        help='list all your droplets',
+        action='store_true',
+    )
+
     return parser.parse_args()
 
 
 def config_command(parameters):
-    """Processes the config command that let the user set and retrieve configuration information"""
+    """Process the 'config' command that let the user set and retrieve configuration information"""
     config = Configuration()
 
     if parameters.get is not None:
@@ -70,6 +81,10 @@ def config_command(parameters):
         raise NotImplementedError("--get-all: Not yet implemented")
     else:
         assert False, "Something went wrong when parsing the parameters, I did not find any."
+
+def droplet_command(parameters):
+    """Process the 'droplet' command that let the user interact with its droplets"""
+    raise NotImplementedError("This will come later")
 
 if __name__ == "__main__":
     main()
