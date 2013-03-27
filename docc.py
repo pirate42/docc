@@ -4,6 +4,12 @@
 """
 
 from docc.config import Configuration
+from docc.api.credentials import Credentials
+import docc.api.droplet
+import docc.api.size
+import docc.api.region
+import docc.api.image
+
 import argparse
 
 
@@ -13,15 +19,21 @@ def main():
     print "Docc -- Digital Ocean Command Center\n"
 
     params = parse_arguments()
-    try:
-        if params.command == 'config':
-            config_command(params)
-        elif params.command == 'droplet':
-            droplet_command(params)
-        else:
-            raise Exception("Unknown command line command: '%s'" % params.command)
-    except Exception as e:
-        print "Error: %s" % e
+    #try:
+    if params.command == 'config':
+        config_command(params)
+    elif params.command == 'droplet':
+        droplet_command(params)
+    elif params.command == 'size':
+        size_command(params)
+    elif params.command == 'region':
+        region_command(params)
+    elif params.command == 'image':
+        image_command(params)
+    else:
+        raise Exception("Unknown command line command: '%s'" % params.command)
+    #except Exception as e:
+    #    print "Error: %s" % e
 
 def parse_arguments():
     """Create the argument parser and parse the command line parameters"""
@@ -61,6 +73,34 @@ def parse_arguments():
         action='store_true',
     )
 
+    # Create a parser for the 'size' command
+    parser_size = subparsers.add_parser('size', help='size let you manage Droplet Ocean sizes')
+    group = parser_size.add_mutually_exclusive_group(required=True)
+    group.add_argument(
+        '--list',
+        help='list all available sizes',
+        action='store_true'
+    )
+
+    # Create a parser for the 'image' command
+    parser_image = subparsers.add_parser('image', help='size let you manage Droplet Ocean images')
+    group = parser_image.add_mutually_exclusive_group(required=True)
+    group.add_argument(
+        '--list',
+        help='list available images',
+        choices=['all', 'mine', 'global'],
+        metavar="FILTER",
+    )
+
+    # Create a parser for the 'region' command
+    parser_region = subparsers.add_parser('region', help='region let you manage Droplet Ocean regions')
+    group = parser_region.add_mutually_exclusive_group(required=True)
+    group.add_argument(
+        '--list',
+        help='list all available regions',
+        action='store_true'
+    )
+
     return parser.parse_args()
 
 
@@ -82,9 +122,62 @@ def config_command(parameters):
     else:
         assert False, "Something went wrong when parsing the parameters, I did not find any."
 
+
 def droplet_command(parameters):
     """Process the 'droplet' command that let the user interact with its droplets"""
-    raise NotImplementedError("This will come later")
+
+    if parameters.list:
+        config = Configuration()
+        credentials = Credentials(config['client_id'], config['api_key'])
+        droplets = docc.api.droplet.droplets(credentials=credentials)
+        print "Droplets:"
+        for droplet in droplets:
+            print "  - %s" % droplet
+    else:
+        assert False, "Something went wrong when parsing the parameters, I did not find any."
+
+
+def size_command(parameters):
+    """Process the 'size' command that let the user interact with available sizes"""
+
+    if parameters.list:
+        config = Configuration()
+        credentials = Credentials(config['client_id'], config['api_key'])
+        sizes = docc.api.size.sizes(credentials)
+        print "Sizes:"
+        for size in sizes:
+            print "  - %s" % size
+    else:
+        assert False, "Something went wrong when parsing the parameters, I did not find any."
+
+
+def region_command(parameters):
+    """Process the 'region' command that let the user interact with available regions"""
+
+    if parameters.list:
+        config = Configuration()
+        credentials = Credentials(config['client_id'], config['api_key'])
+        regions = docc.api.region.regions(credentials)
+        print "Regions:"
+        for region in regions:
+            print "  - %s" % region
+    else:
+        assert False, "Something went wrong when parsing the parameters, I did not find any."
+
+
+def image_command(parameters):
+    """Process the 'image' command that let the user interact with available images"""
+
+    if parameters.list:
+        config = Configuration()
+        credentials = Credentials(config['client_id'], config['api_key'])
+        images = docc.api.image.images(credentials, parameters.list )
+
+        print "Images:"
+        for image in images:
+            print "  - %s" % image
+    else:
+        assert False, "Something went wrong when parsing the parameters, I did not find any."
 
 if __name__ == "__main__":
     main()

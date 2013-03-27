@@ -1,35 +1,43 @@
 # coding=utf-8
 
 from docc.api.service import Service
-
-class Region(object):
-    def __init__(self,identifier,description):
-        self.id = identifier
-        self.description = description
+from docc.api.cache import region
 
 
-    @staticmethod
-    def get(credentials,identifier):
-        """Return the Region given an identifier and None if not found.
+class Size(object):
+    """Size encapsulate information for a Digital Ocean droplet size"""
+    def __init__(self):
+        self.id = None
+        self.name = None
 
-        :param credentials: The credentials for the Digital Ocean account that holds the droplets
-        """
-        regions = self.regions(credentials)
-        for region in regions:
-            if region.id == identifier:
-                return region
 
-        return None
+@region.cache_on_arguments()
+def get(credentials,identifier):
+    """Return the Size given an identifier and None if not found.
 
-    @staticmethod
-    def regions(credentials):
-        """Return the a list containing all the regions.
+    :param credentials: The credentials for the Digital Ocean account
+    :param identifier: The identifier for the size you are looking for
+    """
+    s = sizes(credentials)
+    for size in s:
+        if size.id == identifier:
+            return size
+    return None
 
-        :param credentials: The credentials for the Digital Ocean account that holds the droplets
-        """
-        service = Service(credentials)
-        response = service.get("regions")
-        print response
-        encoded_regions = response['regions']
-        print encoded_regions
+
+def sizes(credentials):
+    """Return the a list containing all the available droplet sizes.
+
+    :param credentials: The credentials for the Digital Ocean account that holds the droplets
+    """
+    service = Service(credentials)
+    response = service.get("sizes")
+    encoded_sizes = response['sizes']
+    result = []
+    for encoded_size in encoded_sizes:
+        s = Size()
+        s.name = encoded_size['name']
+        s.id = encoded_size['id']
+        result.append(s)
+    return result
 

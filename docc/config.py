@@ -41,8 +41,3 @@ class Configuration(object):
         self._config.set(self._section,key,value)
         with open(self._location,"w") as f:
             self._config.write(f)
-
-    def api_key(self):
-        """Returns the API key.
-        """
-        raise NotImplementedError("Not yet implemented")

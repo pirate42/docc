@@ -1,0 +1,4 @@
+requests>=1.1.0
+dogpile==0.2.2
+dogpile.cache==0.4.2
+dogpile.core==0.4.1
