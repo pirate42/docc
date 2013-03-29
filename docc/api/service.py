@@ -19,7 +19,10 @@ class Service(object):
         """
         return "https://%s/%s" % (URLBASE,endpoint)
 
-    def get(self,endpoint,params={}):
+    def get(self,endpoint,parameters=None):
+        params = {}
+        if parameters is not None:
+            params = parameters
         params['client_id'] = self.credentials.client_id
         params['api_key'] = self.credentials.api_key
 

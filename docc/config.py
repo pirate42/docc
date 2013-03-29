@@ -28,7 +28,7 @@ class Configuration(object):
 
     def __getitem__(self, key):
         """Returns the value for the given key"""
-        return self._config.get(self._section,key)
+        return self._config.get(self._section, key)
 
     def __setitem__(self, key, value):
         """Set the key, value pair in the configuration and save to disk.
@@ -37,7 +37,7 @@ class Configuration(object):
         """
         valid_values = ['api_key', 'client_id']
         if key not in valid_values:
-            raise ValueError("Given key '%s' is not in %s" % (key,valid_values))
-        self._config.set(self._section,key,value)
-        with open(self._location,"w") as f:
+            raise ValueError("Given key '%s' is not in %s" % (key, valid_values))
+        self._config.set(self._section, key, value)
+        with open(self._location, "w") as f:
             self._config.write(f)

@@ -1,9 +1,5 @@
 # coding=utf-8
 
-from docc.api.service import Service
-from docc.api.enum import enum
-from docc.api.cache import region
-
 
 class Image(object):
     """Represent an Image object (name and distribution information)"""
@@ -19,13 +15,11 @@ class Image(object):
         return "%s: %s, %s" % (self.id, self.name, self.distribution)
 
 
-@region.cache_on_arguments()
-def get(credentials,identifier):
+def get(service,identifier):
     """Return the Image given an identifier and None if not found.
 
     :param credentials: The credentials for the Digital Ocean account that holds the droplets
     """
-    service = Service(credentials)
     response = service.get('images/%s' % identifier)
     encoded_image = response['image']
     i = Image()
@@ -36,20 +30,18 @@ def get(credentials,identifier):
     return i
 
 
-@region.cache_on_arguments()
-def images(credentials, filter):
+def images(service, my_filter):
     """Return the a list containing all the know images.
 
     :param credentials: The credentials for the Digital Ocean account that holds the droplets
     :param only_my_images: If set to True, the method will only return owned images otherwise all images
     """
-    service = Service(credentials)
-    params = {'filter': filter}
-    if filter == 'mine':
+    params = {'filter': my_filter}
+    if my_filter == 'mine':
         params = {'filter': 'my_images'}
 
-    if filter == 'all':
-        return images(credentials, 'global') + images(credentials, 'mine')
+    if my_filter == 'all':
+        return images(service, 'global') + images(service, 'mine')
 
     response = service.get("images",params)
     encoded_images = response['images']

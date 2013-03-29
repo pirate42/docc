@@ -1,7 +1,5 @@
 # coding=utf-8
 
-from docc.api.service import Service
-from docc.api.cache import region
 
 
 class Size(object):
@@ -11,26 +9,24 @@ class Size(object):
         self.name = None
 
 
-@region.cache_on_arguments()
-def get(credentials,identifier):
+def get(service,identifier):
     """Return the Size given an identifier and None if not found.
 
     :param credentials: The credentials for the Digital Ocean account
     :param identifier: The identifier for the size you are looking for
     """
-    s = sizes(credentials)
+    s = sizes(service)
     for size in s:
         if size.id == identifier:
             return size
     return None
 
 
-def sizes(credentials):
+def sizes(service):
     """Return the a list containing all the available droplet sizes.
 
     :param credentials: The credentials for the Digital Ocean account that holds the droplets
     """
-    service = Service(credentials)
     response = service.get("sizes")
     encoded_sizes = response['sizes']
     result = []

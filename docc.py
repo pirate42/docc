@@ -1,10 +1,12 @@
 # coding=utf-8
 
-"""This script allows you to interact with Digital Ocean API via the commaand line.
+"""This script allows you to interact with Digital Ocean API via command line.
 """
 
 from docc.config import Configuration
 from docc.api.credentials import Credentials
+from docc.api.service import Service
+from docc.api.droplet import Droplet
 import docc.api.droplet
 import docc.api.size
 import docc.api.region
@@ -34,6 +36,7 @@ def main():
         raise Exception("Unknown command line command: '%s'" % params.command)
     #except Exception as e:
     #    print "Error: %s" % e
+
 
 def parse_arguments():
     """Create the argument parser and parse the command line parameters"""
@@ -105,7 +108,10 @@ def parse_arguments():
 
 
 def config_command(parameters):
-    """Process the 'config' command that let the user set and retrieve configuration information"""
+    """Process the 'config' command that let the user set and retrieve configuration information
+
+    :param parameters:
+    """
     config = Configuration()
 
     if parameters.get is not None:
@@ -129,7 +135,8 @@ def droplet_command(parameters):
     if parameters.list:
         config = Configuration()
         credentials = Credentials(config['client_id'], config['api_key'])
-        droplets = docc.api.droplet.droplets(credentials=credentials)
+        service = Service(credentials)
+        droplets = Droplet.droplets(service)
         print "Droplets:"
         for droplet in droplets:
             print "  - %s" % droplet
@@ -143,7 +150,8 @@ def size_command(parameters):
     if parameters.list:
         config = Configuration()
         credentials = Credentials(config['client_id'], config['api_key'])
-        sizes = docc.api.size.sizes(credentials)
+        service = Service(credentials)
+        sizes = docc.api.size.sizes(service)
         print "Sizes:"
         for size in sizes:
             print "  - %s" % size
@@ -157,7 +165,8 @@ def region_command(parameters):
     if parameters.list:
         config = Configuration()
         credentials = Credentials(config['client_id'], config['api_key'])
-        regions = docc.api.region.regions(credentials)
+        service = Service(credentials)
+        regions = docc.api.region.regions(service)
         print "Regions:"
         for region in regions:
             print "  - %s" % region
@@ -171,7 +180,8 @@ def image_command(parameters):
     if parameters.list:
         config = Configuration()
         credentials = Credentials(config['client_id'], config['api_key'])
-        images = docc.api.image.images(credentials, parameters.list )
+        service = Service(credentials)
+        images = docc.api.image.images(service, parameters.list )
 
         print "Images:"
         for image in images:

@@ -1,7 +1,5 @@
 # coding=utf-8
 
-from docc.api.service import Service
-from docc.api.cache import region
 
 
 class Region(object):
@@ -17,26 +15,23 @@ class Region(object):
         return "%s: %s" % (self.id, self.name)
 
 
-@region.cache_on_arguments()
-def get(credentials, identifier):
+def get(service, identifier):
     """Return the Region given an identifier and None if not found.
 
     :param credentials: The credentials for the Digital Ocean account that holds the droplets
     """
-    r = regions(credentials)
+    r = regions(service)
     for region in r:
         if region.id == identifier:
             return region
 
     return None
 
-@region.cache_on_arguments()
-def regions(credentials):
+def regions(service):
     """Return the a list containing all the regions.
 
     :param credentials: The credentials for the Digital Ocean account that holds the droplets
     """
-    service = Service(credentials)
     response = service.get("regions")
     encoded_regions = response['regions']
     result = []
