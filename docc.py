@@ -3,20 +3,21 @@
 """This script allows you to interact with Digital Ocean API via command line.
 """
 
+import argparse
+
 from docc.config import Configuration
 from docc.api.credentials import Credentials
 from docc.api.service import Service
 from docc.api.droplet import Droplet
-import docc.api.droplet
-import docc.api.size
-import docc.api.region
-import docc.api.image
-
-import argparse
+from docc.api.size import Size
+from docc.api.region import Region
+from docc.api.image import Image
 
 
 def main():
-    """Main function for the whole thing. Parse parameters and calls the appropriate command"""
+    """Main function for the whole thing. Parse parameters and calls the
+    appropriate command
+    """
 
     print "Docc -- Digital Ocean Command Center\n"
 
@@ -34,20 +35,26 @@ def main():
         image_command(params)
     else:
         raise Exception("Unknown command line command: '%s'" % params.command)
-    #except Exception as e:
-    #    print "Error: %s" % e
+        #except Exception as e:
+        #    print "Error: %s" % e
 
 
 def parse_arguments():
     """Create the argument parser and parse the command line parameters"""
 
     # Create the top-level parser
-    parser = argparse.ArgumentParser(description="This script lets you interact with Digital Ocean")
+    parser = argparse.ArgumentParser(
+        description="This script lets you interact with Digital Ocean"
+    )
     #parser.add_argument('--foo', action='store_true', help='foo help')
-    subparsers = parser.add_subparsers(help='You need to use one of those commands', dest='command')
+    subparsers = parser.add_subparsers(
+        help='You need to use one of those commands', dest='command'
+    )
 
     # Create a parser for the 'config' command
-    parser_config = subparsers.add_parser('config', help='config let you modify your configuration file')
+    parser_config = subparsers.add_parser(
+        'config', help='config let you modify your configuration file'
+    )
     group = parser_config.add_mutually_exclusive_group(required=True)
     group.add_argument(
         "--set",
@@ -68,7 +75,10 @@ def parse_arguments():
     )
 
     # Create a parser for the 'droplet' command
-    parser_droplet = subparsers.add_parser('droplet', help='droplet let you manage your droplets')
+    parser_droplet = subparsers.add_parser(
+        'droplet',
+        help='droplet let you manage your droplets'
+    )
     group = parser_droplet.add_mutually_exclusive_group(required=True)
     group.add_argument(
         '--list',
@@ -77,7 +87,10 @@ def parse_arguments():
     )
 
     # Create a parser for the 'size' command
-    parser_size = subparsers.add_parser('size', help='size let you manage Droplet Ocean sizes')
+    parser_size = subparsers.add_parser(
+        'size',
+        help='size let you manage Droplet Ocean sizes'
+    )
     group = parser_size.add_mutually_exclusive_group(required=True)
     group.add_argument(
         '--list',
@@ -86,17 +99,24 @@ def parse_arguments():
     )
 
     # Create a parser for the 'image' command
-    parser_image = subparsers.add_parser('image', help='size let you manage Droplet Ocean images')
+    parser_image = subparsers.add_parser(
+        'image',
+        help='size let you manage Droplet Ocean images'
+    )
     group = parser_image.add_mutually_exclusive_group(required=True)
     group.add_argument(
         '--list',
-        help='list available images',
-        choices=['all', 'mine', 'global'],
+        help="list available images using filter 'all', "
+             "'my_images', or 'global')",
+        choices=['all', 'my_images', 'global'],
         metavar="FILTER",
     )
 
     # Create a parser for the 'region' command
-    parser_region = subparsers.add_parser('region', help='region let you manage Droplet Ocean regions')
+    parser_region = subparsers.add_parser(
+        'region',
+        help='region let you manage Droplet Ocean regions'
+    )
     group = parser_region.add_mutually_exclusive_group(required=True)
     group.add_argument(
         '--list',
@@ -108,9 +128,10 @@ def parse_arguments():
 
 
 def config_command(parameters):
-    """Process the 'config' command that let the user set and retrieve configuration information
+    """Process the 'config' command that let the user set and retrieve
+    configuration information
 
-    :param parameters:
+    :param parameters: TODO
     """
     config = Configuration()
 
@@ -126,11 +147,16 @@ def config_command(parameters):
     elif parameters.get_all:
         raise NotImplementedError("--get-all: Not yet implemented")
     else:
-        assert False, "Something went wrong when parsing the parameters, I did not find any."
+        assert False, \
+            "Something went wrong when parsing the parameters, " \
+            "I did not find any."
 
 
 def droplet_command(parameters):
-    """Process the 'droplet' command that let the user interact with its droplets"""
+    """Process the 'droplet' command that let the user interact with its
+    droplets
+    :param parameters:TODO
+    """
 
     if parameters.list:
         config = Configuration()
@@ -141,53 +167,67 @@ def droplet_command(parameters):
         for droplet in droplets:
             print "  - %s" % droplet
     else:
-        assert False, "Something went wrong when parsing the parameters, I did not find any."
+        assert False, "Something went wrong when parsing the parameters, " \
+                      "I did not find any."
 
 
 def size_command(parameters):
-    """Process the 'size' command that let the user interact with available sizes"""
+    """Process the 'size' command that let the user interact with available
+    sizes
+    :param parameters: TODO
+    """
 
     if parameters.list:
         config = Configuration()
         credentials = Credentials(config['client_id'], config['api_key'])
         service = Service(credentials)
-        sizes = docc.api.size.sizes(service)
+        sizes = Size.sizes(service)
         print "Sizes:"
         for size in sizes:
             print "  - %s" % size
     else:
-        assert False, "Something went wrong when parsing the parameters, I did not find any."
+        assert False, "Something went wrong when parsing the parameters, " \
+                      "I did not find any."
 
 
 def region_command(parameters):
-    """Process the 'region' command that let the user interact with available regions"""
+    """Process the 'region' command that let the user interact with available
+    regions
+    :param parameters: TODO
+    """
 
     if parameters.list:
         config = Configuration()
         credentials = Credentials(config['client_id'], config['api_key'])
         service = Service(credentials)
-        regions = docc.api.region.regions(service)
+        regions = Region.regions(service)
         print "Regions:"
         for region in regions:
             print "  - %s" % region
     else:
-        assert False, "Something went wrong when parsing the parameters, I did not find any."
+        assert False, "Something went wrong when parsing the parameters, " \
+                      "I did not find any."
 
 
 def image_command(parameters):
-    """Process the 'image' command that let the user interact with available images"""
+    """Process the 'image' command that let the user interact with available
+    images
+    :param parameters: TODO
+    """
 
     if parameters.list:
         config = Configuration()
         credentials = Credentials(config['client_id'], config['api_key'])
         service = Service(credentials)
-        images = docc.api.image.images(service, parameters.list )
+        images = Image.images(service, parameters.list)
 
         print "Images:"
         for image in images:
             print "  - %s" % image
     else:
-        assert False, "Something went wrong when parsing the parameters, I did not find any."
+        assert False, "Something went wrong when parsing the parameters, " \
+                      "I did not find any."
+
 
 if __name__ == "__main__":
     main()

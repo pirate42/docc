@@ -1,15 +1,17 @@
 # coding=utf-8
 
-from docc.api.enum import enum
-import docc.api.region
-import docc.api.size
-import docc.api.image
+from docc.api.region import Region
+from docc.api.size import Size
+from docc.api.image import Image
 
-Statuses = enum(NEW='new', ACTIVE='active')
-
+class Status(object):
+    """A status represents the current status for a given droplet"""
+    NEW="new"
+    ACTIVE="active"
 
 class Droplet(object):
-    """A droplet encapsulates meta-information for a given droplet back at Digital Ocean"""
+    """A droplet encapsulates meta-information for a given droplet.
+    """
 
     def __init__(self, status, droplet_id, name, size, image, ip_address, region, backups):
         self.status = status
@@ -32,17 +34,17 @@ class Droplet(object):
     def droplets(service):
         """Put all the droplets for the given account in a list
 
-        :param service: The service instance for the Digital Ocean account that holds the droplets
+        :param service: The service object for the Digital Ocean account that holds the droplets
         """
         response = service.get("droplets")
         encoded_droplets = response['droplets']
         result = []
         for encoded_droplet in encoded_droplets:
-            size = docc.api.size.get(service, encoded_droplet['size_id'])
-            image = docc.api.image.get(service, encoded_droplet['image_id'])
-            region = docc.api.region.get(service, encoded_droplet['region_id'])
+            size = Size.get(service, encoded_droplet['size_id'])
+            image = Image.get(service, encoded_droplet['image_id'])
+            region = Region.get(service, encoded_droplet['region_id'])
             backups = encoded_droplet['backups_active'] is not None
-            status = Statuses.reverse_mapping[encoded_droplet['status']],
+            status = encoded_droplet['status']
 
             droplet = Droplet(
                 status=status,
