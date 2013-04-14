@@ -115,6 +115,11 @@ def parse_arguments():
         help='power off the droplet corresponding to the given id',
         metavar='ID'
     )
+    group.add_argument(
+        '--destroy',
+        help='destroy the droplet corresponding to the given id',
+        metavar='ID'
+    )
 
     # Create a parser for the 'size' command
     parser_size = subparsers.add_parser(
@@ -232,6 +237,7 @@ def config_command(parameters):
 def droplet_command(parameters):
     """Process the 'droplet' command that let the user interact with its
     droplets
+
     :param parameters:TODO
     """
 
@@ -267,7 +273,7 @@ def droplet_command(parameters):
         if result:
             print "Power on of droplet %s was successful" % droplet_id
         else:
-            print "Unable to power off droplet %s" % droplet_id
+            print "Unable to power on droplet %s" % droplet_id
     elif parameters.off:
         droplet_id = parameters.off
         service = get_service()
@@ -276,7 +282,16 @@ def droplet_command(parameters):
         if result:
             print "Power off of droplet %s was successful" % droplet_id
         else:
-            print "Unable to power on droplet %s" % droplet_id
+            print "Unable to power off droplet %s" % droplet_id
+    elif parameters.destroy:
+        droplet_id = parameters.destroy
+        service = get_service()
+        droplet = Droplet.get(service, droplet_id)
+        result = droplet.destroy(service)
+        if result:
+            print "Droplet %s was successful destroyed" % droplet_id
+        else:
+            print "Unable to destroy droplet %s" % droplet_id
     else:
         assert False, "Something went wrong when parsing the parameters, " \
                       "I did not find any."

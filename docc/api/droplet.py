@@ -113,3 +113,9 @@ class Droplet(object):
         response = service.get("droplets/%s/power_off" % self.id)
         status = response['status']
         return status == 'OK'
+
+    def destroy(self, service):
+        """Destroy this droplet"""
+        response = service.get("droplets/%s/destroy" % self.id)
+        status = response['status']
+        return status == 'OK'
