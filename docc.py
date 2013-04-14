@@ -13,7 +13,7 @@ from docc.api.droplet import Droplet
 from docc.api.size import Size
 from docc.api.region import Region
 from docc.api.image import Image
-from docc.api.exceptions import APIError
+from docc.api.exceptions import CredentialsError, APIError
 
 
 def main():
@@ -40,6 +40,8 @@ def main():
         else:
             raise Exception(
                 "Unknown command line command: '%s'" % params.command)
+    except CredentialsError as e:
+        print "Error: %s." % e
     except APIError as e:
         print "Error: %s." % e
 

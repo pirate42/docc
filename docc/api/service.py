@@ -2,11 +2,10 @@
 
 import requests
 from requests.exceptions import ConnectionError
-from docc.api.exceptions import APIError
+
+from docc.api import exceptions
 
 URLBASE = 'api.digitalocean.com'
-
-import docc.api.exceptions
 
 
 class Service(object):
@@ -26,9 +25,28 @@ class Service(object):
         try:
             r = requests.get(self.__url(endpoint), params=params)
         except ConnectionError:
-            raise docc.api.exceptions.ConnectionError("Connection to Digital Ocean failed.")
+            raise exceptions.ConnectionError(
+                "Connection to Digital Ocean failed.")
 
         content = r.json()
-        if content['status'] != 'OK':
-            raise APIError("Status: %s, Message: %s" % (content["status"], content["description"]))
+        status = content['status']
+        if status != 'OK':
+            if 'description' in content:
+                description = content["description"]
+                if "Unable to verify credentials" in description:
+                    raise exceptions.CredentialsError(
+                        "Status: %s, Message: %s" %
+                        (status, description)
+                    )
+
+                raise exceptions.APIError(
+                    "Status: %s, Message: %s" %
+                    (status, description)
+                )
+            error_message = content['error_message']
+            raise exceptions.APIError(
+                "Status: %s, Message: %s" %
+                (status, error_message)
+            )
+
         return content
