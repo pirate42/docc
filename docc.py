@@ -106,8 +106,13 @@ def parse_arguments():
         metavar='ID'
     )
     group.add_argument(
-        '--power-cycle',
-        help='power-cycle the droplet corresponding to the given id',
+        '--on',
+        help='power on the droplet corresponding to the given id',
+        metavar='ID'
+    )
+    group.add_argument(
+        '--off',
+        help='power off the droplet corresponding to the given id',
         metavar='ID'
     )
 
@@ -254,13 +259,22 @@ def droplet_command(parameters):
             print "Reboot of droplet %s was successful" % droplet_id
         else:
             print "Unable to reboot droplet %s" % droplet_id
-    elif parameters.power_cycle:
-        droplet_id = parameters.power_cycle
+    elif parameters.on:
+        droplet_id = parameters.on
         service = get_service()
         droplet = Droplet.get(service, droplet_id)
-        result = droplet.power_cycle(service)
+        result = droplet.power_on(service)
         if result:
-            print "Power-cycle of droplet %s was successful" % droplet_id
+            print "Power on of droplet %s was successful" % droplet_id
+        else:
+            print "Unable to power-cycle droplet %s" % droplet_id
+    elif parameters.off:
+        droplet_id = parameters.off
+        service = get_service()
+        droplet = Droplet.get(service, droplet_id)
+        result = droplet.power_off(service)
+        if result:
+            print "Power off of droplet %s was successful" % droplet_id
         else:
             print "Unable to power-cycle droplet %s" % droplet_id
     else:

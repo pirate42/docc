@@ -101,3 +101,15 @@ class Droplet(object):
         response = service.get("droplets/%s/power_cycle" % self.id)
         status = response['status']
         return status == 'OK'
+
+    def power_on(self, service):
+        """Power on this droplet"""
+        response = service.get("droplets/%s/power_on" % self.id)
+        status = response['status']
+        return status == 'OK'
+
+    def power_off(self, service):
+        """Power off this droplet"""
+        response = service.get("droplets/%s/power_off" % self.id)
+        status = response['status']
+        return status == 'OK'

@@ -227,7 +227,6 @@ class TestDroplet(unittest.TestCase):
             'droplets/21345/reboot'
         )
 
-
     def test_power_cycle(self):
         droplet = Droplet(
             Status.NEW,
@@ -250,6 +249,54 @@ class TestDroplet(unittest.TestCase):
         self.assertTrue(droplet.power_cycle(service))
         mock.assert_called_once_with(
             'droplets/21345/power_cycle'
+        )
+
+    def test_power_off(self):
+        droplet = Droplet(
+            Status.ACTIVE,
+            21345,
+            "This is a test",
+            Size(1, "512M"),
+            Image(34, "Ubuntu 10.02", "A linux distribution"),
+            "1.2.3.4",
+            Region(1, "USA"),
+            False,
+        )
+        credentials = Credentials("abc", "def")
+        service = Service(credentials)
+        response = {
+            "status": "OK",
+            "event_id": 1417387
+        }
+        mock = MagicMock(return_value=response)
+        service.get = mock
+        self.assertTrue(droplet.power_off(service))
+        mock.assert_called_once_with(
+            'droplets/21345/power_off'
+        )
+
+    def test_power_on(self):
+        droplet = Droplet(
+            Status.OFF,
+            21345,
+            "This is a test",
+            Size(1, "512M"),
+            Image(34, "Ubuntu 10.02", "A linux distribution"),
+            "1.2.3.4",
+            Region(1, "USA"),
+            False,
+        )
+        credentials = Credentials("abc", "def")
+        service = Service(credentials)
+        response = {
+            "status": "OK",
+            "event_id": 1417387
+        }
+        mock = MagicMock(return_value=response)
+        service.get = mock
+        self.assertTrue(droplet.power_on(service))
+        mock.assert_called_once_with(
+            'droplets/21345/power_on'
         )
 
 
