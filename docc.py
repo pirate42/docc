@@ -13,6 +13,7 @@ from docc.api.droplet import Droplet
 from docc.api.size import Size
 from docc.api.region import Region
 from docc.api.image import Image
+from docc.api.sshkey import SSHKey
 from docc.api.exceptions import CredentialsError, APIError
 
 
@@ -37,6 +38,8 @@ def main():
             region_command(params)
         elif params.command == 'image':
             image_command(params)
+        elif params.command == 'sshkey':
+            sshkey_command(params)
         else:
             raise Exception(
                 "Unknown command line command: '%s'" % params.command)
@@ -144,6 +147,18 @@ def parse_arguments():
     group.add_argument(
         '--list',
         help='list all available regions',
+        action='store_true'
+    )
+
+    # Create a parser for the 'sshkey' command
+    parser_ssh_keys = subparsers.add_parser(
+        'sshkey',
+        help='sshkey let you manage Droplet Ocean SSH keys'
+    )
+    group = parser_ssh_keys.add_mutually_exclusive_group(required=True)
+    group.add_argument(
+        '--list',
+        help='list all available SSH keys',
         action='store_true'
     )
 
@@ -282,6 +297,23 @@ def region_command(parameters):
         print "Regions:"
         for region in regions:
             print "  - %s" % region
+    else:
+        assert False, "Something went wrong when parsing the parameters, " \
+                      "I did not find any."
+
+
+def sshkey_command(parameters):
+    """Process the 'sshkey' command that let the user interact with available
+    SSH keys
+    :param parameters: TODO
+    """
+
+    if parameters.list:
+        service = get_service()
+        keys = SSHKey.keys(service)
+        print "SSH Keys:"
+        for key in keys:
+            print "  - %s" % key
     else:
         assert False, "Something went wrong when parsing the parameters, " \
                       "I did not find any."
