@@ -30,7 +30,15 @@ class Configuration(object):
 
     def __getitem__(self, key):
         """Returns the value for the given key"""
-        return self._config.get(self._section, key)
+        if not self._config.has_section(self._section):
+            self._config.add_section(self._section)
+        try:
+            return self._config.get(self._section, key)
+        except ConfigParser.NoOptionError:
+            raise KeyError(
+                "%s is not a valid key in the configuration file" %
+                key
+            )
 
     def __setitem__(self, key, value):
         """Set the key, value pair in the configuration and save to disk.

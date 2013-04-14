@@ -4,6 +4,7 @@
 """
 
 import argparse
+import sys
 
 from docc.configuration import Configuration
 from docc.api.credentials import Credentials
@@ -23,23 +24,24 @@ def main():
     print "Docc -- Digital Ocean Command Center\n"
 
     params = parse_arguments()
-    #try:
-    if params.command == 'init':
-        init_command(params)
-    elif params.command == 'config':
-        config_command(params)
-    elif params.command == 'droplet':
-        droplet_command(params)
-    elif params.command == 'size':
-        size_command(params)
-    elif params.command == 'region':
-        region_command(params)
-    elif params.command == 'image':
-        image_command(params)
-    else:
-        raise Exception("Unknown command line command: '%s'" % params.command)
-        #except Exception as e:
-        #    print "Error: %s" % e
+    try:
+        if params.command == 'init':
+            init_command(params)
+        elif params.command == 'config':
+            config_command(params)
+        elif params.command == 'droplet':
+            droplet_command(params)
+        elif params.command == 'size':
+            size_command(params)
+        elif params.command == 'region':
+            region_command(params)
+        elif params.command == 'image':
+            image_command(params)
+        else:
+            raise Exception(
+                "Unknown command line command: '%s'" % params.command)
+    except APIError as e:
+        print "Error: %s." % e
 
 
 def parse_arguments():
@@ -135,6 +137,21 @@ def parse_arguments():
     return parser.parse_args()
 
 
+def get_service():
+    """Return a valid service
+
+    Return a valid service initialized with credentials contained in the
+    configuration file.
+    """
+    try:
+        config = Configuration()
+        credentials = Credentials(config['client_id'], config['api_key'])
+        return Service(credentials)
+    except KeyError:
+        print "Unable to retrieve credentials. Did you use 'init' command?"
+        sys.exit(1)
+
+
 def init_command(parameters):
     """Process the 'init' command that let use set credentials"""
     configuration = Configuration()
@@ -153,6 +170,7 @@ def init_command(parameters):
         configuration['api_key'] = api_key
     except APIError:
         print "Unable to connect to Digital Ocean. Not storing credentials."
+        sys.exit(1)
 
 
 def config_command(parameters):
@@ -187,9 +205,7 @@ def droplet_command(parameters):
     """
 
     if parameters.list:
-        config = Configuration()
-        credentials = Credentials(config['client_id'], config['api_key'])
-        service = Service(credentials)
+        service = get_service()
         droplets = Droplet.droplets(service)
         print "Droplets:"
         for droplet in droplets:
@@ -206,9 +222,7 @@ def size_command(parameters):
     """
 
     if parameters.list:
-        config = Configuration()
-        credentials = Credentials(config['client_id'], config['api_key'])
-        service = Service(credentials)
+        service = get_service()
         sizes = Size.sizes(service)
         print "Sizes:"
         for size in sizes:
@@ -225,9 +239,7 @@ def region_command(parameters):
     """
 
     if parameters.list:
-        config = Configuration()
-        credentials = Credentials(config['client_id'], config['api_key'])
-        service = Service(credentials)
+        service = get_service()
         regions = Region.regions(service)
         print "Regions:"
         for region in regions:
@@ -244,9 +256,7 @@ def image_command(parameters):
     """
 
     if parameters.list:
-        config = Configuration()
-        credentials = Credentials(config['client_id'], config['api_key'])
-        service = Service(credentials)
+        service = get_service()
         images = Image.images(service, parameters.list)
 
         print "Images:"
