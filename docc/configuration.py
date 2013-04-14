@@ -41,6 +41,8 @@ class Configuration(object):
         if key not in valid_values:
             raise ValueError(
                 "Given key '%s' is not in %s" % (key, valid_values))
+        if not self._config.has_section(self._section):
+            self._config.add_section(self._section)
         self._config.set(self._section, key, value)
         with open(self._location, "w") as f:
             self._config.write(f)
