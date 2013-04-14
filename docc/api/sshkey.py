@@ -5,9 +5,10 @@
 class SSHKey(object):
     """Size encapsulate information for a Digital Ocean droplet size"""
 
-    def __init__(self, identifier, name):
+    def __init__(self, identifier, name, public_key=None):
         self.id = identifier
         self.name = name
+        self.public_key = public_key
 
     def __repr__(self):
         return "<%s: %s>" % (self.id, self.name)
