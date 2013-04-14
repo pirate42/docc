@@ -28,18 +28,16 @@ def main():
     try:
         if params.command == 'init':
             init_command()
-        elif params.command == 'config':
-            config_command(params)
-        elif params.command == 'droplet':
-            droplet_command(params)
-        elif params.command == 'size':
-            size_command(params)
-        elif params.command == 'region':
-            region_command(params)
-        elif params.command == 'image':
-            image_command(params)
-        elif params.command == 'sshkey':
-            sshkey_command(params)
+        elif params.command == 'list':
+            list_command(params)
+        elif params.command == 'destroy':
+            destroy_command(params)
+        elif (  params.command == 'shutdown' or
+                        params.command == 'power_off' or
+                        params.command == 'power_on' or
+                        params.command == 'power_cycle' or
+                        params.command == 'reboot' ):
+            droplet_operation(params)
         else:
             raise Exception(
                 "Unknown command line command: '%s'" % params.command)
@@ -53,125 +51,74 @@ def parse_arguments():
     """Create the argument parser and parse the command line parameters"""
 
     # Create the top-level parser
-    parser = argparse.ArgumentParser(
-        description="This script lets you interact with Digital Ocean"
+    main_parser = argparse.ArgumentParser(
+        description="This script lets you interact with Digital Ocean "
+                    "droplets and associated objects."
     )
-    subparsers = parser.add_subparsers(
-        help='You need to use one of those commands', dest='command'
+    command_parsers = main_parser.add_subparsers(
+        help='commands:', dest='command'
     )
 
     # Create a parser for the 'init' command
-    subparsers.add_parser(
-        'init', help='init let you create a configuration file and initialize'
-                     ' credentials'
+    command_parsers.add_parser(
+        'init', help='a configuration file with credentials'
     )
 
-    # Create a parser for the 'config' command
-    parser_config = subparsers.add_parser(
-        'config', help='config let you modify your configuration file'
+    # Create a parser for the 'list' command
+    parser_list = command_parsers.add_parser(
+        'list',
+        help='different Digital Ocean objects'
     )
-    group = parser_config.add_mutually_exclusive_group(required=True)
-    group.add_argument(
-        "--set",
-        help='set a key, value pair in the configuration file',
-        nargs=2,
-        metavar=('KEY', 'VALUE')
+    list_command_parsers = parser_list.add_subparsers(
+        dest='type'
     )
-    group.add_argument(
-        '--get',
-        help='get a value given a key from the configuration file',
-        nargs=1,
-        metavar='KEY'
-    )
+    for object_type, description in [
+        ('droplets', 'droplets'),
+        ('regions', 'regions'),
+        ('sizes', 'sizes'),
+        ('images', 'all images'),
+        ('my_images', 'my images'),
+        ('global_images', 'global images'),
+        ('keys', 'SSH keys')
+    ]:
+        list_command_parsers.add_parser(
+            object_type,
+            help="list %s" % description
+        )
 
-    # Create a parser for the 'droplet' command
-    parser_droplet = subparsers.add_parser(
-        'droplet',
-        help='droplet let you manage your droplets'
-    )
-    group = parser_droplet.add_mutually_exclusive_group(required=True)
-    group.add_argument(
-        '--list',
-        help='list all your droplets',
-        action='store_true',
-    )
-    group.add_argument(
-        '--shutdown',
-        help='shutdown the droplet corresponding to the given id',
-        metavar='ID'
-    )
-    group.add_argument(
-        '--reboot',
-        help='reboot the droplet corresponding to the given id',
-        metavar='ID'
-    )
-    group.add_argument(
-        '--on',
-        help='power on the droplet corresponding to the given id',
-        metavar='ID'
-    )
-    group.add_argument(
-        '--off',
-        help='power off the droplet corresponding to the given id',
-        metavar='ID'
-    )
-    group.add_argument(
-        '--destroy',
-        help='destroy the droplet corresponding to the given id',
-        metavar='ID'
-    )
+    # Parsers for different operations on droplets
+    for operation in [
+        'shutdown',
+        'power_cycle',
+        'power_off',
+        'power_on',
+        'reboot'
+    ]:
+        local_parser = command_parsers.add_parser(
+            operation,
+            help='one or more droplets given identifiers'
+        )
+        local_parser.add_argument('ids', metavar='ID', type=int, nargs='+')
 
-    # Create a parser for the 'size' command
-    parser_size = subparsers.add_parser(
-        'size',
-        help='size let you manage Droplet Ocean sizes'
+    # Create a parser for the 'destroy' command
+    parser_destroy = command_parsers.add_parser(
+        'destroy',
+        help='different Digital Ocean objects'
     )
-    group = parser_size.add_mutually_exclusive_group(required=True)
-    group.add_argument(
-        '--list',
-        help='list all available sizes',
-        action='store_true'
+    destroy_command_parsers = parser_destroy.add_subparsers(
+        dest='type'
     )
+    for object_type, description in [
+        ('droplet', 'droplets'),
+        ('image', 'images')
+    ]:
+        local_parser = destroy_command_parsers.add_parser(
+            object_type,
+            help='destroy %s given list of identifiers' % description
+        )
+        local_parser.add_argument('ids', metavar='ID', type=int, nargs="+")
 
-    # Create a parser for the 'image' command
-    parser_image = subparsers.add_parser(
-        'image',
-        help='image let you manage Droplet Ocean images'
-    )
-    group = parser_image.add_mutually_exclusive_group(required=True)
-    group.add_argument(
-        '--list',
-        help="list available images using filter 'all', "
-             "'my_images', or 'global')",
-        choices=['all', 'my_images', 'global'],
-        metavar="FILTER",
-    )
-
-    # Create a parser for the 'region' command
-    parser_region = subparsers.add_parser(
-        'region',
-        help='region let you manage Droplet Ocean regions'
-    )
-    group = parser_region.add_mutually_exclusive_group(required=True)
-    group.add_argument(
-        '--list',
-        help='list all available regions',
-        action='store_true'
-    )
-
-    # Create a parser for the 'sshkey' command
-    parser_ssh_keys = subparsers.add_parser(
-        'sshkey',
-        help='sshkey let you manage Droplet Ocean SSH keys'
-    )
-    group = parser_ssh_keys.add_mutually_exclusive_group(required=True)
-    group.add_argument(
-        '--list',
-        help='list all available SSH keys',
-        action='store_true'
-    )
-
-    return parser.parse_args()
+    return main_parser.parse_args()
 
 
 def get_service():
@@ -211,161 +158,69 @@ def init_command():
         sys.exit(1)
 
 
-def config_command(parameters):
-    """Process the 'config' command that let user set and retrieve
-    configuration information
+def list_command(parameters):
+    service = get_service()
 
-    :param parameters: TODO
-    """
-    config = Configuration()
+    def list_objects(p):
+        (my_callable, title) = p
+        print title + ":"
+        objects = my_callable(service)
+        if not objects:
+            print "  None found"
+        for one_object in objects:
+            print "  - %s" % one_object
 
-    if parameters.get is not None:
-        key = parameters.get[0]
-        value = config[key]
-        print "%s: %s" % (key, value)
-    elif parameters.set is not None:
-        key = parameters.set[0]
-        value = parameters.set[1]
-        config[key] = value
-        print "%s: %s" % (key, config[key])
-    else:
-        assert False, \
-            "Something went wrong when parsing the parameters, " \
-            "I did not find any."
+    list_objects(
+        {
+            'droplets': (Droplet.droplets, "Droplets"),
+            'sizes': (Size.sizes, "Sizes"),
+            'regions': (Region.regions, "Regions"),
+            'keys': (SSHKey.keys, "SSH Keys"),
+            'images': (Image.images, "All Images"),
+            'my_images': (Image.my_images, "My Images"),
+            'global_images': (Image.global_images, "Global Images"),
+        }[parameters.type]
+    )
 
 
-def droplet_command(parameters):
-    """Process the 'droplet' command that let the user interact with its
-    droplets
-
-    :param parameters:TODO
-    """
-
-    if parameters.list:
-        service = get_service()
-        droplets = Droplet.droplets(service)
-        print "Droplets:"
-        if not droplets:
-            print "  No droplets found."
-        for droplet in droplets:
-            print "  - %s" % droplet
-    elif parameters.shutdown:
-        droplet_id = parameters.shutdown
-        service = get_service()
+def droplet_operation(parameters):
+    service = get_service()
+    operation = parameters.command
+    for droplet_id in parameters.ids:
         droplet = Droplet.get(service, droplet_id)
-        result = droplet.shutdown(service)
+        method_to_call = getattr(droplet, operation)
+        result = method_to_call(service)
         if result:
-            print "Shutdown of droplet %s was successful" % droplet_id
+            print "'%s' operation on droplet %s was successful" % \
+                  (operation, droplet_id)
         else:
-            print "Unable to shutdown droplet %s" % droplet_id
-    elif parameters.reboot:
-        droplet_id = parameters.reboot
-        service = get_service()
-        droplet = Droplet.get(service, droplet_id)
-        result = droplet.reboot(service)
-        if result:
-            print "Reboot of droplet %s was successful" % droplet_id
-        else:
-            print "Unable to reboot droplet %s" % droplet_id
-    elif parameters.on:
-        droplet_id = parameters.on
-        service = get_service()
-        droplet = Droplet.get(service, droplet_id)
-        result = droplet.power_on(service)
-        if result:
-            print "Power on of droplet %s was successful" % droplet_id
-        else:
-            print "Unable to power on droplet %s" % droplet_id
-    elif parameters.off:
-        droplet_id = parameters.off
-        service = get_service()
-        droplet = Droplet.get(service, droplet_id)
-        result = droplet.power_off(service)
-        if result:
-            print "Power off of droplet %s was successful" % droplet_id
-        else:
-            print "Unable to power off droplet %s" % droplet_id
-    elif parameters.destroy:
-        droplet_id = parameters.destroy
-        service = get_service()
-        droplet = Droplet.get(service, droplet_id)
-        result = droplet.destroy(service)
-        if result:
-            print "Droplet %s was successful destroyed" % droplet_id
-        else:
-            print "Unable to destroy droplet %s" % droplet_id
-    else:
-        assert False, "Something went wrong when parsing the parameters, " \
-                      "I did not find any."
+            print "'%s' operation on droplet %s failed" % \
+                  (operation, droplet_id)
 
 
-def size_command(parameters):
-    """Process the 'size' command that let the user interact with available
-    sizes
-    :param parameters: TODO
-    """
+def destroy_command(parameters):
+    """Process the 'destroy' command for different objects and identifiers"""
+    service = get_service()
+    identifiers = parameters.ids
 
-    if parameters.list:
-        service = get_service()
-        sizes = Size.sizes(service)
-        print "Sizes:"
-        for size in sizes:
-            print "  - %s" % size
-    else:
-        assert False, "Something went wrong when parsing the parameters, " \
-                      "I did not find any."
+    def destroy_objects(p):
+        (my_callable, title) = p
+        for i in identifiers:
+            my_object = my_callable.get(service, i)
+            result = my_object.destroy(service)
+            if result:
+                print "%s %s destroyed" % \
+                      (title, i)
+            else:
+                print "%s %s NOT destroyed" % \
+                      (title, i)
 
-
-def region_command(parameters):
-    """Process the 'region' command that let the user interact with available
-    regions
-    :param parameters: TODO
-    """
-
-    if parameters.list:
-        service = get_service()
-        regions = Region.regions(service)
-        print "Regions:"
-        for region in regions:
-            print "  - %s" % region
-    else:
-        assert False, "Something went wrong when parsing the parameters, " \
-                      "I did not find any."
-
-
-def sshkey_command(parameters):
-    """Process the 'sshkey' command that let the user interact with available
-    SSH keys
-    :param parameters: TODO
-    """
-
-    if parameters.list:
-        service = get_service()
-        keys = SSHKey.keys(service)
-        print "SSH Keys:"
-        for key in keys:
-            print "  - %s" % key
-    else:
-        assert False, "Something went wrong when parsing the parameters, " \
-                      "I did not find any."
-
-
-def image_command(parameters):
-    """Process the 'image' command that let the user interact with available
-    images
-    :param parameters: TODO
-    """
-
-    if parameters.list:
-        service = get_service()
-        images = Image.images(service, parameters.list)
-
-        print "Images:"
-        for image in images:
-            print "  - %s" % image
-    else:
-        assert False, "Something went wrong when parsing the parameters, " \
-                      "I did not find any."
+    destroy_objects(
+        {
+            'droplet': (Droplet, "Droplet"),
+            'image': (Image, "Image")
+        }[parameters.type]
+    )
 
 
 if __name__ == "__main__":

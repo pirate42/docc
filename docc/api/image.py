@@ -24,12 +24,19 @@ class Image(object):
     def __ne__(self, other):
         return not self.__eq__(other)
 
+    def destroy(self, service):
+        """Destroy this image"""
+        response = service.get("images/%s/destroy" % self.id)
+        status = response['status']
+        return status == 'OK'
+
     @staticmethod
     def get(service, identifier):
         """Return the Image given an identifier and None if not found.
 
         :param identifier: TODO
-        :param service: The service object for the Digital Ocean account that holds the images
+        :param service: The service object for the Digital Ocean account
+        that holds the images
         """
         response = service.get('images/%s' % identifier)
         encoded_image = response['image']
@@ -42,29 +49,41 @@ class Image(object):
 
 
     @staticmethod
-    def images(service, filter):
+    def __images(service, my_filter=None):
         """Return the a list containing all the know images.
 
         :param service: The service object for the Digital Ocean account that
         holds the images
-        :param filter: Should be one of 'all', 'my_images', 'global'. If 'all'
+        :param my_filter: Should be absent, 'my_images', 'global'. If 'all'
         this will return all the images you have access to. 'my_images' will
         return the images you stored and 'global' the images available to all
         customers.
         """
-        params = {}
-        allowed_values = ['all', 'my_images', 'global']
-        if filter not in allowed_values:
-            raise ValueError("my_filter should be one of %s" % allowed_values)
-        if filter != 'all':
-            params = {'filter': filter}
+        if my_filter is None:
+            response = service.get("images")
+        else:
+            response = service.get("images", {'filter': my_filter})
 
-        response = service.get("images", params)
         encoded_images = response['images']
 
         result = []
         for encoded_image in encoded_images:
-            i = Image(encoded_image['id'], encoded_image['name'], encoded_image['distribution'])
+            i = Image(encoded_image['id'], encoded_image['name'],
+                      encoded_image['distribution'])
             result.append(i)
         return result
 
+    @staticmethod
+    def images(service):
+        """Return all the known images included mine"""
+        return Image.__images(service)
+
+    @staticmethod
+    def my_images(service):
+        """Return my images"""
+        return Image.__images(service, 'my_images')
+
+    @staticmethod
+    def global_images(service):
+        """Return globally available images"""
+        return Image.__images(service, 'global')

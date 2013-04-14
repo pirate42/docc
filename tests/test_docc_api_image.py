@@ -46,8 +46,8 @@ class TestImage(unittest.TestCase):
             'status': 'OK',
             'images': [
                 {'name': 'Name 1',
-                      'id': 1,
-                      'distribution': "Ubuntu 10.04"
+                 'id': 1,
+                 'distribution': "Ubuntu 10.04"
                 },
                 {'name': 'Name 2',
                  'id': 2,
@@ -58,36 +58,56 @@ class TestImage(unittest.TestCase):
 
         mock = MagicMock(return_value=response)
         service.get = mock
-        images = Image.images(service, "my_images")
-        mock.assert_called_once_with(
-            'images', {'filter': 'my_images'}
-        )
+        images = Image.images(service)
+        mock.assert_called_once_with('images')
         self.assertEquals(len(images), 2)
+
+
+    def test_global_images(self):
+        credentials = Credentials("abc", "def")
+        service = Service(credentials)
+        response = {
+            'status': 'OK',
+            'images': [
+                {'name': 'Name 1',
+                 'id': 1,
+                 'distribution': "Ubuntu 10.04"
+                },
+                {'name': 'Name 2',
+                 'id': 2,
+                 'distribution': "Ubuntu 12.04"
+                },
+            ]
+        }
 
         mock = MagicMock(return_value=response)
         service.get = mock
-        images = Image.images(service, "all")
-        mock.assert_called_once_with(
-            'images', {}
-        )
+        images = Image.global_images(service)
+        mock.assert_called_once_with('images', {'filter': 'global'})
         self.assertEquals(len(images), 2)
+
+    def test_my_images(self):
+        credentials = Credentials("abc", "def")
+        service = Service(credentials)
+        response = {
+            'status': 'OK',
+            'images': [
+                {'name': 'Name 1',
+                 'id': 1,
+                 'distribution': "Ubuntu 10.04"
+                },
+                {'name': 'Name 2',
+                 'id': 2,
+                 'distribution': "Ubuntu 12.04"
+                },
+            ]
+        }
 
         mock = MagicMock(return_value=response)
         service.get = mock
-        images = Image.images(service, "global")
-        mock.assert_called_once_with(
-            'images', {'filter': 'global'}
-        )
+        images = Image.my_images(service)
+        mock.assert_called_once_with('images', {'filter': 'my_images'})
         self.assertEquals(len(images), 2)
-
-        service.get = MagicMock(return_value=response)
-        with self.assertRaises(ValueError):
-            images = Image.images(service, "")
-
-        with self.assertRaises(ValueError):
-            images = Image.images(service, "foo")
-
-
 
     def test___eq__(self):
         image1 = Image(1, "Ubuntu 10.02", "A linux distribution")
@@ -112,6 +132,26 @@ class TestImage(unittest.TestCase):
         self.assertTrue(image1.__ne__(image3))
         self.assertTrue(image1.__ne__(image4))
         self.assertTrue(image1.__ne__(image5))
+
+
+    def test_destroy(self):
+        image = Image(
+            21345,
+            "This is a test",
+            "This is a test"
+        )
+        credentials = Credentials("abc", "def")
+        service = Service(credentials)
+        response = {
+            "status": "OK",
+            "event_id": 1417387
+        }
+        mock = MagicMock(return_value=response)
+        service.get = mock
+        self.assertTrue(image.destroy(service))
+        mock.assert_called_once_with(
+            'images/21345/destroy'
+        )
 
 
 if __name__ == '__main__':
