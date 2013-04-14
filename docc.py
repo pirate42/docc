@@ -245,7 +245,7 @@ def droplet_command(parameters):
         service = get_service()
         droplets = Droplet.droplets(service)
         print "Droplets:"
-        if [] == droplets:
+        if not droplets:
             print "  No droplets found."
         for droplet in droplets:
             print "  - %s" % droplet
