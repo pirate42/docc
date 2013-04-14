@@ -5,13 +5,14 @@
 
 import argparse
 
-from docc.config import Configuration
+from docc.configuration import Configuration
 from docc.api.credentials import Credentials
 from docc.api.service import Service
 from docc.api.droplet import Droplet
 from docc.api.size import Size
 from docc.api.region import Region
 from docc.api.image import Image
+from docc.api.exceptions import APIError
 
 
 def main():
@@ -23,7 +24,9 @@ def main():
 
     params = parse_arguments()
     #try:
-    if params.command == 'config':
+    if params.command == 'init':
+        init_command(params)
+    elif params.command == 'config':
         config_command(params)
     elif params.command == 'droplet':
         droplet_command(params)
@@ -46,9 +49,14 @@ def parse_arguments():
     parser = argparse.ArgumentParser(
         description="This script lets you interact with Digital Ocean"
     )
-    #parser.add_argument('--foo', action='store_true', help='foo help')
     subparsers = parser.add_subparsers(
         help='You need to use one of those commands', dest='command'
+    )
+
+    # Create a parser for the 'init' command
+    subparsers.add_parser(
+        'init', help='init let you create a configuration file and initialize'
+                     ' credentials'
     )
 
     # Create a parser for the 'config' command
@@ -127,8 +135,28 @@ def parse_arguments():
     return parser.parse_args()
 
 
+def init_command(parameters):
+    """Process the 'init' command that let use set credentials"""
+    configuration = Configuration()
+    print "Retrieve 'Client Key' and 'API Key' from " \
+          "https://www.digitalocean.com/api_access and enter them below." \
+          " They will be stored in %s\n" % configuration._location
+    client_id = raw_input("Client Key: ")
+    api_key = raw_input("API Key: ")
+
+    # Verify configuration
+    credentials = Credentials(client_id, api_key)
+    service = Service(credentials)
+    try:
+        service.get('droplets')
+        configuration['client_id'] = client_id
+        configuration['api_key'] = api_key
+    except APIError:
+        print "Unable to connect to Digital Ocean. Not storing credentials."
+
+
 def config_command(parameters):
-    """Process the 'config' command that let the user set and retrieve
+    """Process the 'config' command that let user set and retrieve
     configuration information
 
     :param parameters: TODO
