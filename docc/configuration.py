@@ -1,5 +1,6 @@
 # coding=utf-8
-"""This file contains the Configuration class that is used to pulled information stored on disk between invocations.
+"""This file contains the Configuration class that is used to pulled
+information stored on disk between invocations.
 """
 import os
 import ConfigParser
@@ -9,13 +10,14 @@ class Configuration(object):
     """To load and use configuration file."""
     _config = None
     _location = None
-    _section = "global"  # Right now, there is only one section in the configuration file.
+    _section = "global"  # Right now, this is the only section
 
     def __init__(self, location=None):
         """Initialize the Configuration class
 
         :type self: object
-        :param location: The configuration file location. If None is used, then $HOME/.docc will be used.
+        :param location: The configuration file location. If None is used,
+        then $HOME/.docc will be used.
         """
 
         if location is None:
@@ -37,7 +39,8 @@ class Configuration(object):
         """
         valid_values = ['api_key', 'client_id']
         if key not in valid_values:
-            raise ValueError("Given key '%s' is not in %s" % (key, valid_values))
+            raise ValueError(
+                "Given key '%s' is not in %s" % (key, valid_values))
         self._config.set(self._section, key, value)
         with open(self._location, "w") as f:
             self._config.write(f)
