@@ -90,6 +90,11 @@ def parse_arguments():
         help='list all your droplets',
         action='store_true',
     )
+    group.add_argument(
+        '--shutdown',
+        help='shutdown the droplet corresponding to the given id',
+        metavar='ID'
+    )
 
     # Create a parser for the 'size' command
     parser_size = subparsers.add_parser(
@@ -203,6 +208,15 @@ def droplet_command(parameters):
         print "Droplets:"
         for droplet in droplets:
             print "  - %s" % droplet
+    elif parameters.shutdown:
+        droplet_id = parameters.shutdown
+        service = get_service()
+        droplet = Droplet.get(service, droplet_id)
+        result = droplet.shutdown(service)
+        if result:
+            print "Shutdown of droplet %s was successful" % droplet_id
+        else:
+            print "Unable to shutdown droplet %s" % droplet_id
     else:
         assert False, "Something went wrong when parsing the parameters, " \
                       "I did not find any."
