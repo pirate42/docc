@@ -110,7 +110,8 @@ def parse_arguments():
     )
     for object_type, description in [
         ('droplet', 'droplets'),
-        ('image', 'images')
+        ('image', 'images'),
+        ('key', 'keys')
     ]:
         local_parser = destroy_command_parsers.add_parser(
             object_type,
@@ -218,7 +219,8 @@ def destroy_command(parameters):
     destroy_objects(
         {
             'droplet': (Droplet, "Droplet"),
-            'image': (Image, "Image")
+            'image': (Image, "Image"),
+            'key': ( SSHKey, "SSH Key"),
         }[parameters.type]
     )
 

@@ -1,14 +1,13 @@
 # coding=utf-8
 
 
-
 class SSHKey(object):
     """Size encapsulate information for a Digital Ocean droplet size"""
 
     def __init__(self, identifier, name, public_key=None):
         self.id = identifier
         self.name = name
-        self.public_key = public_key
+        self.public = public_key
 
     def __repr__(self):
         return "<%s: %s>" % (self.id, self.name)
@@ -25,6 +24,33 @@ class SSHKey(object):
     def __ne__(self, other):
         return not self.__eq__(other)
 
+    def destroy(self, service):
+        """Destroy this key
+
+        :param service: The service object for the Digital Ocean account
+        that holds the keys
+        """
+        response = service.get("ssh_keys/%s/destroy" % self.id)
+        status = response['status']
+        return status == 'OK'
+
+    @staticmethod
+    def get(service, identifier):
+        """Return the Image given an identifier and None if not found.
+
+        :param identifier: the identifier for the key we want to retrieve
+        :param service: The service object for the Digital Ocean account
+        that holds the keys
+        """
+        response = service.get('ssh_keys/%s' % identifier)
+        encoded_image = response['ssh_key']
+        i = SSHKey(
+            encoded_image['id'],
+            encoded_image['name'],
+            encoded_image['ssh_pub_key']
+        )
+
+        return i
 
     @staticmethod
     def keys(service):
@@ -40,4 +66,3 @@ class SSHKey(object):
             s = SSHKey(encoded_size['id'], encoded_size['name'])
             result.append(s)
         return result
-
