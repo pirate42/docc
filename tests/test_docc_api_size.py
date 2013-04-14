@@ -5,6 +5,7 @@ from docc.api.service import Service
 from docc.api.size import Size
 from docc.api.credentials import Credentials
 
+
 class TestSize(unittest.TestCase):
     def test___init__(self):
         size = Size(3, "def")
@@ -37,15 +38,15 @@ class TestSize(unittest.TestCase):
             ]
         }
         service.get = MagicMock(return_value=response)
-        regions = Size.sizes(service)
-        self.assertEquals(len(regions), 2)
+        sizes = Size.sizes(service)
+        self.assertEquals(len(sizes), 2)
 
 
     def test___eq__(self):
-        size1 = Size(1,"512M")
-        size2 = Size(1,"512M")
-        size3 = Size(2,"512M")
-        size4 = Size(1,"1024M")
+        size1 = Size(1, "512M")
+        size2 = Size(1, "512M")
+        size3 = Size(2, "512M")
+        size4 = Size(1, "1024M")
         self.assertTrue(size1.__eq__(size2))
         self.assertTrue(size2.__eq__(size1))
         self.assertFalse(size1.__eq__(size3))
@@ -53,10 +54,10 @@ class TestSize(unittest.TestCase):
 
 
     def test___ne__(self):
-        size1 = Size(1,"512M")
-        size2 = Size(1,"512M")
-        size3 = Size(2,"512M")
-        size4 = Size(1,"1024M")
+        size1 = Size(1, "512M")
+        size2 = Size(1, "512M")
+        size3 = Size(2, "512M")
+        size4 = Size(1, "1024M")
         self.assertFalse(size1.__ne__(size2))
         self.assertFalse(size2.__ne__(size1))
         self.assertTrue(size1.__ne__(size3))
@@ -71,6 +72,7 @@ class TestSize(unittest.TestCase):
     def test___str__(self):
         size = Size(3, "def")
         self.assertEqual("3: def", size.__str__())
+
 
 if __name__ == '__main__':
     unittest.main()
