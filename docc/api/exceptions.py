@@ -1,6 +1,10 @@
 # coding=utf-8
 
+
 class ConnectionError(Exception):
+    """This exception is raised whenever when are unable to connect to the
+    Digital Ocean service API
+    """
     pass
 
 
