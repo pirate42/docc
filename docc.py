@@ -27,7 +27,7 @@ def main():
     params = parse_arguments()
     try:
         if params.command == 'init':
-            init_command(params)
+            init_command()
         elif params.command == 'config':
             config_command(params)
         elif params.command == 'droplet':
@@ -111,7 +111,6 @@ def parse_arguments():
         metavar='ID'
     )
 
-
     # Create a parser for the 'size' command
     parser_size = subparsers.add_parser(
         'size',
@@ -180,8 +179,9 @@ def get_service():
         sys.exit(1)
 
 
-def init_command(parameters):
-    """Process the 'init' command that let use set credentials"""
+def init_command():
+    """Process the 'init' command that let use set credentials
+    """
     configuration = Configuration()
     print "Retrieve 'Client Key' and 'API Key' from " \
           "https://www.digitalocean.com/api_access and enter them below." \
