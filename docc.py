@@ -106,7 +106,7 @@ def parse_arguments():
     # Create a parser for the 'image' command
     parser_image = subparsers.add_parser(
         'image',
-        help='size let you manage Droplet Ocean images'
+        help='image let you manage Droplet Ocean images'
     )
     group = parser_image.add_mutually_exclusive_group(required=True)
     group.add_argument(
