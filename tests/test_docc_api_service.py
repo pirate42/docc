@@ -2,18 +2,18 @@
 import unittest
 
 from mock import MagicMock
-
-from docc.api.credentials import Credentials
-from docc.api.service import Service
-from docc.api.exceptions import APIError, ConnectionError
-
 import requests
+
+from api.credentials import Credentials
+from api.service import Service
+from api.exceptions import APIError, ConnectionError
+
 
 class TestService(unittest.TestCase):
     def test___init__(self):
         credentials = Credentials("abc", "def")
         service = Service(credentials)
-        self.assertEquals(service.credentials,credentials)
+        self.assertEquals(service.credentials, credentials)
 
 
     def test_get(self):
@@ -21,13 +21,14 @@ class TestService(unittest.TestCase):
         service = Service(credentials)
 
         class Response(object):
-            def __init__(self,response):
+            def __init__(self, response):
                 self.response = response
+
             def json(self):
                 return self.response
 
         # Test where requests.get returns something with status: OK
-        response = { 'status': 'OK' }
+        response = {'status': 'OK'}
         mock = MagicMock(return_value=Response(response))
         requests.get = mock
         self.assertEquals(service.get("test"), response)

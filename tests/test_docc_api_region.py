@@ -1,11 +1,12 @@
 # coding=utf-8
 import unittest
 
-from docc.api.region import Region
-from docc.api.credentials import Credentials
-from docc.api.service import Service
-
 from mock import MagicMock
+
+from api.region import Region
+from api.credentials import Credentials
+from api.service import Service
+
 
 class TestRegion(unittest.TestCase):
     def test___init__(self):
@@ -54,24 +55,25 @@ class TestRegion(unittest.TestCase):
 
 
     def test___eq__(self):
-        region1 = Region(1,"USA")
-        region2 = Region(1,"USA")
-        region3 = Region(2,"USA")
-        region4 = Region(1,"NL")
+        region1 = Region(1, "USA")
+        region2 = Region(1, "USA")
+        region3 = Region(2, "USA")
+        region4 = Region(1, "NL")
         self.assertTrue(region1.__eq__(region2))
         self.assertTrue(region2.__eq__(region1))
         self.assertFalse(region1.__eq__(region3))
         self.assertFalse(region1.__eq__(region4))
 
     def test___ne__(self):
-        region1 = Region(1,"USA")
-        region2 = Region(1,"USA")
-        region3 = Region(2,"USA")
-        region4 = Region(1,"NL")
+        region1 = Region(1, "USA")
+        region2 = Region(1, "USA")
+        region3 = Region(2, "USA")
+        region4 = Region(1, "NL")
         self.assertFalse(region1.__ne__(region2))
         self.assertFalse(region2.__ne__(region1))
         self.assertTrue(region1.__ne__(region3))
         self.assertTrue(region1.__ne__(region4))
+
 
 if __name__ == '__main__':
     unittest.main()
