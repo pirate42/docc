@@ -267,7 +267,7 @@ def droplet_command(parameters):
         if result:
             print "Power on of droplet %s was successful" % droplet_id
         else:
-            print "Unable to power-cycle droplet %s" % droplet_id
+            print "Unable to power off droplet %s" % droplet_id
     elif parameters.off:
         droplet_id = parameters.off
         service = get_service()
@@ -276,7 +276,7 @@ def droplet_command(parameters):
         if result:
             print "Power off of droplet %s was successful" % droplet_id
         else:
-            print "Unable to power-cycle droplet %s" % droplet_id
+            print "Unable to power on droplet %s" % droplet_id
     else:
         assert False, "Something went wrong when parsing the parameters, " \
                       "I did not find any."
