@@ -38,6 +38,8 @@ def main():
                         params.command == 'power_cycle' or
                         params.command == 'reboot' ):
             droplet_operation(params)
+        elif params.command == 'create':
+            create_command(params)
         else:
             raise Exception(
                 "Unknown command line command: '%s'" % params.command)
@@ -118,6 +120,35 @@ def parse_arguments():
             help='destroy %s given list of identifiers' % description
         )
         local_parser.add_argument('ids', metavar='ID', type=int, nargs="+")
+
+    # Create a parser for the 'create' command
+    parse_create = command_parsers.add_parser(
+        'create',
+        help='different Digital Ocean objects'
+    )
+    create_command_parsers = parse_create.add_subparsers(
+        dest='type'
+    )
+
+    create_droplet_parser = create_command_parsers.add_parser(
+        'droplet',
+        help='create a new droplet'
+    )
+    create_droplet_parser.add_argument(
+        'name', metavar='NAME', type=str, nargs=1
+    )
+    create_droplet_parser.add_argument(
+        'size', metavar='SIZE_ID', type=int, nargs=1
+    )
+    create_droplet_parser.add_argument(
+        'image', metavar='IMAGE_ID', type=int, nargs=1
+    )
+    create_droplet_parser.add_argument(
+        'region', metavar='REGION_ID', type=int, nargs=1
+    )
+    create_droplet_parser.add_argument(
+        'keys', metavar='KEY_ID', type=int, nargs="*"
+    )
 
     return main_parser.parse_args()
 
@@ -200,11 +231,14 @@ def droplet_operation(parameters):
 
 
 def destroy_command(parameters):
-    """Process the 'destroy' command for different objects and identifiers"""
+    """Process the 'destroy' command for different objects and identifiers
+    :param parameters: TODO
+    """
     service = get_service()
     identifiers = parameters.ids
 
     def destroy_objects(p):
+        """retrieve object for each identifier and destroys it"""
         (my_callable, title) = p
         for i in identifiers:
             my_object = my_callable.get(service, i)
@@ -223,6 +257,30 @@ def destroy_command(parameters):
             'key': ( SSHKey, "SSH Key"),
         }[parameters.type]
     )
+
+
+def create_droplet(parameters):
+    print parameters
+    name = parameters.name[0]
+    size_id = parameters.size[0]
+    region_id = parameters.region[0]
+    image_id = parameters.image[0]
+    keys = parameters.keys
+
+    service = get_service()
+    print Droplet.create(
+        service=service,
+        name=name,
+        size_id=size_id,
+        image_id=image_id,
+        region_id=region_id,
+        keys=keys
+    )
+
+
+def create_command(parameters):
+    if parameters.type == 'droplet':
+        create_droplet(parameters)
 
 
 if __name__ == "__main__":

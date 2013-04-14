@@ -32,8 +32,8 @@ class Droplet(object):
             self.id, self.name, self.status, self.ip_address)
 
     def __str__(self):
-        return "%s: %s, %s, %s" % (
-            self.id, self.name, self.status, self.ip_address)
+        return "%s: %s, %s, %s, %s" % (
+            self.id, self.name, self.status, self.ip_address, self.size.name)
 
 
     @staticmethod
@@ -47,6 +47,24 @@ class Droplet(object):
         response = service.get('droplets/%s' % droplet_id)
         encoded_droplet = response['droplet']
         return Droplet.__from_encoded(service, encoded_droplet)
+
+    @staticmethod
+    def create(service, name, size_id, image_id, region_id, keys=None):
+        params = {
+            'name': name,
+            'size_id': size_id,
+            'image_id': image_id,
+            'region_id': region_id,
+        }
+        if keys is not None and keys:
+            params['ssh_key_ids'] = \
+                reduce(lambda x, y: str(x) + ',' + str(y), keys)
+        response = service.get('droplets/new', params)
+        status = response['status']
+        if status == 'OK':
+            droplet_id = response['droplet']['id']
+            return Droplet.get(service, droplet_id)
+        return None
 
 
     @staticmethod
