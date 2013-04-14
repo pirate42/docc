@@ -47,7 +47,6 @@ class TestDroplet(unittest.TestCase):
         self.assertEqual("<21345: This is a test, new, 1.2.3.4>",
                          droplet.__repr__())
 
-
     def test___str__(self):
         droplet = Droplet(
             Status.NEW,
@@ -92,26 +91,28 @@ class TestDroplet(unittest.TestCase):
 
         service_response = {
             "status": "OK",
-            "droplets": [{
-                             "id": 151220,
-                             "name": "cloud.segonds.org",
-                             "image_id": 25306,
-                             "size_id": 66,
-                             "region_id": 1,
-                             "backups_active": None,
-                             "ip_address": "208.68.38.181",
-                             "status": "new"
-                         },
-                         {
-                             "id": 151221,
-                             "name": "cloud2.segonds.org",
-                             "image_id": 25306,
-                             "size_id": 66,
-                             "region_id": 1,
-                             "backups_active": None,
-                             "ip_address": "208.68.38.182",
-                             "status": "new"
-                         }, ]
+            "droplets": [
+                {
+                    "id": 151220,
+                    "name": "cloud.segonds.org",
+                    "image_id": 25306,
+                    "size_id": 66,
+                    "region_id": 1,
+                    "backups_active": None,
+                    "ip_address": "208.68.38.181",
+                    "status": "new"
+                },
+                {
+                    "id": 151221,
+                    "name": "cloud2.segonds.org",
+                    "image_id": 25306,
+                    "size_id": 66,
+                    "region_id": 1,
+                    "backups_active": None,
+                    "ip_address": "208.68.38.182",
+                    "status": "new"
+                },
+            ]
         }
         credentials = Credentials("abc", "def")
         service = Service(credentials)
@@ -125,7 +126,6 @@ class TestDroplet(unittest.TestCase):
         self.assertEquals(droplet.name, "cloud.segonds.org")
         self.assertEquals(droplet.size, Size(66, "512M"))
         self.assertEquals(droplet.status, Status.NEW)
-
 
     def test_get(self):
         size_patcher = patch(
@@ -202,7 +202,6 @@ class TestDroplet(unittest.TestCase):
         mock.assert_called_once_with(
             'droplets/21345/shutdown'
         )
-
 
     def test_reboot(self):
         droplet = Droplet(
