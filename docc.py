@@ -95,6 +95,11 @@ def parse_arguments():
         help='shutdown the droplet corresponding to the given id',
         metavar='ID'
     )
+    group.add_argument(
+        '--reboot',
+        help='reboot the droplet corresponding to the given id',
+        metavar='ID'
+    )
 
     # Create a parser for the 'size' command
     parser_size = subparsers.add_parser(
@@ -217,6 +222,15 @@ def droplet_command(parameters):
             print "Shutdown of droplet %s was successful" % droplet_id
         else:
             print "Unable to shutdown droplet %s" % droplet_id
+    elif parameters.reboot:
+        droplet_id = parameters.reboot
+        service = get_service()
+        droplet = Droplet.get(service, droplet_id)
+        result = droplet.reboot(service)
+        if result:
+            print "Reboot of droplet %s was successful" % droplet_id
+        else:
+            print "Unable to reboot droplet %s" % droplet_id
     else:
         assert False, "Something went wrong when parsing the parameters, " \
                       "I did not find any."

@@ -204,5 +204,30 @@ class TestDroplet(unittest.TestCase):
         )
 
 
+    def test_reboot(self):
+        droplet = Droplet(
+            Status.NEW,
+            21345,
+            "This is a test",
+            Size(1, "512M"),
+            Image(34, "Ubuntu 10.02", "A linux distribution"),
+            "1.2.3.4",
+            Region(1, "USA"),
+            False,
+        )
+        credentials = Credentials("abc", "def")
+        service = Service(credentials)
+        response = {
+            "status": "OK",
+            "event_id": 1417387
+        }
+        mock = MagicMock(return_value=response)
+        service.get = mock
+        self.assertTrue(droplet.reboot(service))
+        mock.assert_called_once_with(
+            'droplets/21345/reboot'
+        )
+
+
 if __name__ == '__main__':
     unittest.main()

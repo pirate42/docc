@@ -29,11 +29,11 @@ class Droplet(object):
 
     def __repr__(self):
         return "<%s: %s, %s, %s>" % (
-        self.id, self.name, self.status, self.ip_address)
+            self.id, self.name, self.status, self.ip_address)
 
     def __str__(self):
         return "%s: %s, %s, %s" % (
-        self.id, self.name, self.status, self.ip_address)
+            self.id, self.name, self.status, self.ip_address)
 
 
     @staticmethod
@@ -87,5 +87,11 @@ class Droplet(object):
     def shutdown(self, service):
         """Shutdown this droplet"""
         response = service.get("droplets/%s/shutdown" % self.id)
+        status = response['status']
+        return status == 'OK'
+
+    def reboot(self, service):
+        """Reboot this droplet"""
+        response = service.get("droplets/%s/reboot" % self.id)
         status = response['status']
         return status == 'OK'
