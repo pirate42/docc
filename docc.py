@@ -100,6 +100,12 @@ def parse_arguments():
         help='reboot the droplet corresponding to the given id',
         metavar='ID'
     )
+    group.add_argument(
+        '--power-cycle',
+        help='power-cycle the droplet corresponding to the given id',
+        metavar='ID'
+    )
+
 
     # Create a parser for the 'size' command
     parser_size = subparsers.add_parser(
@@ -231,6 +237,15 @@ def droplet_command(parameters):
             print "Reboot of droplet %s was successful" % droplet_id
         else:
             print "Unable to reboot droplet %s" % droplet_id
+    elif parameters.power_cycle:
+        droplet_id = parameters.power_cycle
+        service = get_service()
+        droplet = Droplet.get(service, droplet_id)
+        result = droplet.power_cycle(service)
+        if result:
+            print "Power-cycle of droplet %s was successful" % droplet_id
+        else:
+            print "Unable to power-cycle droplet %s" % droplet_id
     else:
         assert False, "Something went wrong when parsing the parameters, " \
                       "I did not find any."
