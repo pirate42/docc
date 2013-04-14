@@ -78,11 +78,6 @@ def parse_arguments():
         nargs=1,
         metavar='KEY'
     )
-    group.add_argument(
-        '--get-all',
-        help='get all key, value pairs from the configuration file',
-        action='store_true'
-    )
 
     # Create a parser for the 'droplet' command
     parser_droplet = subparsers.add_parser(
@@ -190,8 +185,6 @@ def config_command(parameters):
         value = parameters.set[1]
         config[key] = value
         print "%s: %s" % (key, config[key])
-    elif parameters.get_all:
-        raise NotImplementedError("--get-all: Not yet implemented")
     else:
         assert False, \
             "Something went wrong when parsing the parameters, " \
