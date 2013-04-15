@@ -1,9 +1,9 @@
 # coding=utf-8
 import unittest
 from mock import MagicMock
-from api.service import Service
-from api.size import Size
-from api.credentials import Credentials
+from docc.service import Service
+from docc.size import Size
+from docc.credentials import Credentials
 
 
 class TestSize(unittest.TestCase):

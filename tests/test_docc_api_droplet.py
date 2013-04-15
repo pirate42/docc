@@ -3,12 +3,12 @@ import unittest
 
 from mock import MagicMock, patch
 
-from api.droplet import Droplet, Status
-from api.service import Service
-from api.credentials import Credentials
-from api.size import Size
-from api.image import Image
-from api.region import Region
+from docc.droplet import Droplet, Status
+from docc.service import Service
+from docc.credentials import Credentials
+from docc.size import Size
+from docc.image import Image
+from docc.region import Region
 
 
 class TestDroplet(unittest.TestCase):
@@ -63,13 +63,13 @@ class TestDroplet(unittest.TestCase):
 
     def test_droplets(self):
         size_patcher = patch(
-            'api.size.Size.get',
+            'docc.size.Size.get',
             new=MagicMock(return_value=Size(66, "512M"))
         )
         size_patcher.start()
 
         image_patcher = patch(
-            'api.image.Image.get',
+            'docc.image.Image.get',
             MagicMock(
                 return_value=Image(25306, "Ubuntu 1", "Ubuntu Description")
             )
@@ -77,7 +77,7 @@ class TestDroplet(unittest.TestCase):
         image_patcher.start()
 
         region_patcher = patch(
-            'api.region.Region.get',
+            'docc.region.Region.get',
             MagicMock(return_value=Region(1, "USA"))
         )
         region_patcher.start()
@@ -129,13 +129,13 @@ class TestDroplet(unittest.TestCase):
 
     def test_get(self):
         size_patcher = patch(
-            'api.size.Size.get',
+            'docc.size.Size.get',
             new=MagicMock(return_value=Size(66, "512M"))
         )
         size_patcher.start()
 
         image_patcher = patch(
-            'api.image.Image.get',
+            'docc.image.Image.get',
             MagicMock(
                 return_value=Image(25306, "Ubuntu 1", "Ubuntu Description")
             )
@@ -143,7 +143,7 @@ class TestDroplet(unittest.TestCase):
         image_patcher.start()
 
         region_patcher = patch(
-            'api.region.Region.get',
+            'docc.region.Region.get',
             MagicMock(return_value=Region(1, "USA"))
         )
         region_patcher.start()

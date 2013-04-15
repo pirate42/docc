@@ -3,9 +3,9 @@ import unittest
 
 from mock import MagicMock
 
-from api.image import Image
-from api.credentials import Credentials
-from api.service import Service
+from docc.image import Image
+from docc.credentials import Credentials
+from docc.service import Service
 
 
 class TestImage(unittest.TestCase):

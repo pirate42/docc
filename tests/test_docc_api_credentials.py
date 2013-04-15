@@ -1,6 +1,6 @@
 # coding=utf-8
 import unittest
-from api.credentials import Credentials
+from docc.credentials import Credentials
 
 
 class TestCredentials(unittest.TestCase):

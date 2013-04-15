@@ -3,9 +3,9 @@ import unittest
 
 from mock import MagicMock
 
-from api.sshkey import SSHKey
-from api.credentials import Credentials
-from api.service import Service
+from docc.sshkey import SSHKey
+from docc.credentials import Credentials
+from docc.service import Service
 
 
 class TestSSHKey(unittest.TestCase):

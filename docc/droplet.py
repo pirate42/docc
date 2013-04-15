@@ -1,8 +1,8 @@
 # coding=utf-8
 
-from docc.api.region import Region
-from docc.api.size import Size
-from docc.api.image import Image
+from region import Region
+from size import Size
+from image import Image
 
 
 class Status(object):

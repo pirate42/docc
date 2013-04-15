@@ -1,14 +1,16 @@
+#!/usr/bin/env python
 # coding=utf-8
-import ez_setup
+from setuptools import setup
 
-ez_setup.use_setuptools()
-from setuptools import setup, find_packages
+VERSION = "0.0.2"
 
 setup(
     name='docc',
-    version='0.0.2',
-    packages=find_packages(),
+    version=VERSION,
+    packages=['docc'],
+    scripts=['bin/docc'],
     description='Digital Ocean Command Center',
+    keywords='digital ocean droplet',
     long_description=open('README.txt').read(),
     license='LICENSE.txt',
     url='https://github.com/dsegonds/Docc',
@@ -16,5 +18,15 @@ setup(
     author_email='david@segonds.org',
     install_requires=['requests'],
     tests_require=['mock'],
-    test_suite="tests"
+    test_suite="tests",
+    classifiers=[
+        'Development Status :: 5 - Production/Stable',
+        'Intended Audience :: Developers',
+        'License :: OSI Approved :: GNU Library or Lesser General Public '
+        'License (LGPL)',
+        'Natural Language :: English',
+        'Operating System :: OS Independent',
+        'Programming Language :: Python',
+        'Topic :: Software Development :: Testing'
+    ],
 )

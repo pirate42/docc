@@ -3,9 +3,9 @@ import unittest
 
 from mock import MagicMock
 
-from api.region import Region
-from api.credentials import Credentials
-from api.service import Service
+from docc.region import Region
+from docc.credentials import Credentials
+from docc.service import Service
 
 
 class TestRegion(unittest.TestCase):

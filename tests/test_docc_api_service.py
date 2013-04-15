@@ -4,9 +4,9 @@ import unittest
 from mock import MagicMock
 import requests
 
-from api.credentials import Credentials
-from api.service import Service
-from api.exceptions import APIError, ConnectionError
+from docc.credentials import Credentials
+from docc.service import Service
+from docc.exceptions import APIError, ConnectionError
 
 
 class TestService(unittest.TestCase):
