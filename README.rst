@@ -4,16 +4,22 @@ Docc
 
 Docc stands for Digital Ocean Command Center and provides library
 and scripts to manipulate Digital Ocean droplets, ssh keys, etc. 
-via their provided API.
+via the provided API.
 
 Typical usage often looks like this::
 
     #!/usr/bin/env python
 
-    from docc import location
-    from towelstuff import utils
+    from docc.credentials import Credentials
+    from docc.service import Service
+    from docc.droplet import Droplet
 
-    if utils.has_towel():
-        print "Your towel is located:", location.where_is_my_towel()
+    client_id = '<put your client id here>'
+    api_key = '<put your api key here>'
 
-(Note the double-colon and 4-space indent formatting above.)
+    credentials = Credentials(client_id, api_key)
+    service = Service(credentials)
+
+    droplet = Droplet.get(service, 152746)
+    droplet.shutdown(service)
+
