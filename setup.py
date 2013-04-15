@@ -23,7 +23,7 @@ setup(
         'Development Status :: 2 - Pre-Alpha',
         'Intended Audience :: System Administrators',
         'Intended Audience :: Developers',
-        'License :: OSI Approved :: MIT License'
+        'License :: OSI Approved :: MIT License',
         'Natural Language :: English',
         'Operating System :: OS Independent',
         'Programming Language :: Python',
