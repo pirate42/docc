@@ -20,13 +20,13 @@ setup(
     tests_require=['mock'],
     test_suite="tests",
     classifiers=[
-        'Development Status :: 5 - Production/Stable',
+        'Development Status :: 2 - Pre-Alpha',
+        'Intended Audience :: System Administrators',
         'Intended Audience :: Developers',
-        'License :: OSI Approved :: GNU Library or Lesser General Public '
-        'License (LGPL)',
+        'License :: OSI Approved :: MIT License'
         'Natural Language :: English',
         'Operating System :: OS Independent',
         'Programming Language :: Python',
-        'Topic :: Software Development :: Testing'
+        'Topic :: System :: Systems Administration'
     ],
 )
