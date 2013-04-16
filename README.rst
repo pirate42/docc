@@ -23,7 +23,7 @@ Typical usage of the often looks like this::
     droplet = Droplet.get(service, 152746)
     droplet.shutdown(service)
 
-Typical usage of the script looks like:
+Typical usage of the script looks like::
 
     docc list droplets
 
