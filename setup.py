@@ -1,21 +1,22 @@
 #!/usr/bin/env python
 # coding=utf-8
 from setuptools import setup
-
-VERSION = "0.0.2"
+from docc import __version__
 
 setup(
     name='docc',
-    version=VERSION,
+    version=__version__,
     packages=['docc'],
     scripts=['bin/docc'],
     description='Digital Ocean Command Center',
     keywords='digital ocean droplet',
     long_description=open('README.rst').read(),
     license=open('LICENSE.txt').read(),
-    url='https://github.com/dsegonds/Docc',
+    url='https://github.com/dsegonds/docc',
+    download_url='https://pypi.python.org/packages/source/d/docc/docc-%s.tar'
+                 '.gz' % __version__,
     author='David Segonds',
-    author_email='david@segonds.org',
+    author_email='"David Segonds" <david@segonds.org>',
     install_requires=['requests'],
     tests_require=['mock'],
     test_suite="tests",
