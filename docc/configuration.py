@@ -1,9 +1,9 @@
 # coding=utf-8
-"""This file contains the Configuration class that is used to pulled
+"""This file contains the Configuration class that is used to pull
 information stored on disk between invocations.
 """
 import os
-import ConfigParser
+from ConfigParser import RawConfigParser, NoOptionError
 
 
 class Configuration(object):
@@ -25,7 +25,7 @@ class Configuration(object):
         else:
             self._location = location
 
-        self._config = ConfigParser.RawConfigParser()
+        self._config = RawConfigParser()
         self._config.read(self._location)
 
     def __getitem__(self, key):
@@ -34,7 +34,7 @@ class Configuration(object):
             self._config.add_section(self._section)
         try:
             return self._config.get(self._section, key)
-        except ConfigParser.NoOptionError:
+        except NoOptionError:
             raise KeyError(
                 "%s is not a valid key in the configuration file" %
                 key
@@ -45,12 +45,21 @@ class Configuration(object):
 
         Authorized keys are api_key, client_id
         """
-        valid_values = ['api_key', 'client_id']
-        if key not in valid_values:
-            raise ValueError(
-                "Given key '%s' is not in %s" % (key, valid_values))
+
+        # Create the default section if it is missing.
         if not self._config.has_section(self._section):
             self._config.add_section(self._section)
         self._config.set(self._section, key, value)
-        with open(self._location, "w") as f:
+
+        # If the file exists, don't touch it as the user
+        # may have decided on a different set of permissions
+        set_permission = False
+        location = self._location
+        if os.path.exists(location):
+            set_permission = True
+
+        with open(location, "w") as f:
             self._config.write(f)
+
+        if set_permission:
+            os.chmod(location, 0600)
