@@ -150,11 +150,11 @@ def parse_arguments():
         local_parser.add_argument('ids', metavar='ID', type=int, nargs="+")
 
     # Create a parser for the 'create' command
-    parse_create = command_parsers.add_parser(
+    parser_create = command_parsers.add_parser(
         'create',
         help='different Digital Ocean objects'
     )
-    create_command_parsers = parse_create.add_subparsers(
+    create_command_parsers = parser_create.add_subparsers(
         dest='type'
     )
 
