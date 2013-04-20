@@ -17,6 +17,7 @@ from docc.region import Region
 from docc.image import Image
 from docc.sshkey import SSHKey
 from docc.exceptions import CredentialsError, APIError
+from docc import __version__
 
 
 def main():
@@ -24,7 +25,7 @@ def main():
     appropriate command
     """
 
-    print "Docc -- Digital Ocean Command Center\n"
+    print "Docc (%s) -- Digital Ocean Command Center\n" % __version__
 
     params = parse_arguments()
     try:
