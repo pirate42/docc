@@ -148,6 +148,12 @@ class Droplet(object):
         status = response['status']
         return status == 'OK'
 
+    def password_reset(self, service):
+        """Reset root password on this droplet"""
+        response = service.get("droplets/%s/password_reset" % self.id)
+        status = response['status']
+        return status == 'OK'
+
     def destroy(self, service):
         """Destroy this droplet"""
         response = service.get("droplets/%s/destroy" % self.id)

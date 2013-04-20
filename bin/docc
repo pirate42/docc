@@ -38,11 +38,12 @@ def main():
         elif 'destroy' == params.command:
             destroy_command(params)
         elif (
-                                'shutdown' == params.command or
-                                'power_off' == params.command or
-                            'power_on' == params.command or
-                        'power_cycle' == params.command or
-                    'reboot' == params.command
+                                    'shutdown' == params.command or
+                                    'power_off' == params.command or
+                                'power_on' == params.command or
+                            'power_cycle' == params.command or
+                        'reboot' == params.command or
+                    'password_reset' == params.command
         ):
             droplet_operation(params)
         elif 'create' == params.command:
@@ -101,7 +102,8 @@ def parse_arguments():
         'power_cycle',
         'power_off',
         'power_on',
-        'reboot'
+        'reboot',
+        'password_reset'
     ]:
         local_parser = command_parsers.add_parser(
             operation,
