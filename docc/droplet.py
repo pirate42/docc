@@ -166,6 +166,18 @@ class Droplet(object):
         status = response['status']
         return status == 'OK'
 
+    def restore(self, service, image_id):
+        """Restore this droplet to the given image
+
+        :param image_id: is the id for the image object you want to use
+        """
+        params = {
+            'image_id': image_id,
+        }
+        response = service.get("droplets/%s/restore" % self.id, params)
+        status = response['status']
+        return status == 'OK'
+
     def snapshot(self, service, name=None):
         """Take a snapshot image of this droplet
 

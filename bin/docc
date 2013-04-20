@@ -51,6 +51,8 @@ def main():
             resize_command(params)
         elif 'snapshot' == params.command:
             snapshot_command(params)
+        elif 'restore' == params.command:
+            restore_command(params)
         else:
             raise Exception(
                 "Unknown command line command: '%s'" % params.command)
@@ -198,6 +200,14 @@ def parse_arguments():
     )
     parser_resize.add_argument('id', metavar='ID', type=int)
     parser_resize.add_argument('size', metavar='SIZE', type=int)
+
+    # Create a parser for the 'restore' command
+    parser_restore = command_parsers.add_parser(
+        'restore',
+        help='a droplet with the given image'
+    )
+    parser_restore.add_argument('id', metavar='ID', type=int)
+    parser_restore.add_argument('image', metavar='IMAGE', type=int)
 
     # Create a parser to 'snapshot' a given droplet
     parser_snapshot = command_parsers.add_parser(
@@ -417,7 +427,25 @@ def snapshot_command(parameters):
     if droplet.snapshot(service, name):
         print "Droplet %s snapshot was successful" % droplet_id
     else:
-        print "Ddroplet %s snapshot failed" % droplet_id
+        print "Droplet %s snapshot failed" % droplet_id
+
+
+def restore_command(parameters):
+    droplet_id = parameters.id
+    image_id = parameters.image
+    service = get_service()
+    droplet = Droplet.get(service, droplet_id)
+    #if droplet.status != Status.OFF:
+    #    print "Droplet %s is not OFF. Consider using 'shutdown'"
+    #    return
+
+    # Check if the image exists
+    Image.get(service, image_id)
+
+    if droplet.restore(service, image_id):
+        print "Droplet %s restore was successful" % droplet_id
+    else:
+        print "Droplet %s restore failed" % droplet_id
 
 
 if __name__ == "__main__":
