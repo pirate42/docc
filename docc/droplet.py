@@ -32,9 +32,25 @@ class Droplet(object):
             self.id, self.name, self.status, self.ip_address)
 
     def __str__(self):
-        return "%s: %s, %s, %s, %s" % (
-            self.id, self.name, self.status, self.ip_address, self.size.name)
+        return "%s: %s, %s, %s" % (
+            self.id, self.name, self.status, self.ip_address)
 
+    def details(self):
+        fields = [
+            ("Id", self.id),
+            ("Name", self.name),
+            ("Size", self.size),
+            ("Image", self.image),
+            ("IP Address", self.ip_address),
+            ("Region", self.region),
+            ("Backups", self.backups),
+        ]
+        result = ""
+        sep = ""
+        for i in fields:
+            result = result + sep + "%s: %s" % i
+            sep = "\n"
+        return result
 
     @staticmethod
     def get(service, droplet_id):

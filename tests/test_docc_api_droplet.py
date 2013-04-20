@@ -58,7 +58,7 @@ class TestDroplet(unittest.TestCase):
             Region(1, "USA"),
             False,
         )
-        self.assertEqual("21345: This is a test, new, 1.2.3.4, 512M",
+        self.assertEqual("21345: This is a test, new, 1.2.3.4",
                          droplet.__str__())
 
     def test_droplets(self):
