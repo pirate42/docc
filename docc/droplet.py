@@ -154,6 +154,18 @@ class Droplet(object):
         status = response['status']
         return status == 'OK'
 
+    def resize(self, service, size_id):
+        """Resize this droplet
+
+        :param size_id: is the id for the size object you want to use
+        """
+        params = {
+            'size_id': size_id,
+        }
+        response = service.get("droplets/%s/resize" % self.id, params)
+        status = response['status']
+        return status == 'OK'
+
     def destroy(self, service):
         """Destroy this droplet"""
         response = service.get("droplets/%s/destroy" % self.id)

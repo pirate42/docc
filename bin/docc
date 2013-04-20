@@ -37,17 +37,18 @@ def main():
             show_command(params)
         elif 'destroy' == params.command:
             destroy_command(params)
-        elif (
-                                    'shutdown' == params.command or
-                                    'power_off' == params.command or
-                                'power_on' == params.command or
-                            'power_cycle' == params.command or
-                        'reboot' == params.command or
-                    'password_reset' == params.command
+        elif ('shutdown' == params.command or
+                      'power_off' == params.command or
+                      'power_on' == params.command or
+                      'power_cycle' == params.command or
+                      'reboot' == params.command or
+                      'password_reset' == params.command
         ):
             droplet_operation(params)
         elif 'create' == params.command:
             create_command(params)
+        elif 'resize' == params.command:
+            resize_command(params)
         else:
             raise Exception(
                 "Unknown command line command: '%s'" % params.command)
@@ -187,6 +188,14 @@ def parse_arguments():
     create_key_parser.add_argument(
         'public', metavar='PUBLIC_KEY', type=str, nargs="+"
     )
+
+    # Create a parser for the 'resize' command
+    parser_resize = command_parsers.add_parser(
+        'resize',
+        help='a given droplet'
+    )
+    parser_resize.add_argument('id', metavar='ID', type=int)
+    parser_resize.add_argument('size', metavar='SIZE', type=int)
 
     return main_parser.parse_args()
 
@@ -361,6 +370,26 @@ def create_command(parameters):
         create_droplet(parameters)
     elif parameters.type == 'key':
         create_key(parameters)
+
+
+def resize_command(parameters):
+    droplet_id = parameters.id
+    size_id = parameters.size
+    service = get_service()
+    droplet = Droplet.get(service, droplet_id)
+    if size_id == droplet.size.id:
+        print "Droplet %s is already using size %s" % (droplet_id, size_id)
+        return
+    size = Size.get(service, size_id)
+    if size is None:
+        print "Unknown size: %s. Use 'list sizes' for more information" % \
+              size_id
+        return
+
+    if droplet.resize(service, size_id):
+        print "Resize of droplet %s was successful" % droplet_id
+    else:
+        print "Resize of droplet %s failed" % droplet_id
 
 
 if __name__ == "__main__":

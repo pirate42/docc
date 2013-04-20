@@ -27,6 +27,14 @@ class Service(object):
             raise exceptions.ConnectionError(
                 "Connection to Digital Ocean failed.")
 
+        if not r.ok:
+            raise exceptions.APIError(
+                "Status: %s, Reason: %s" % (
+                    r.status_code,
+                    r.reason
+                )
+            )
+
         content = r.json()
         status = content['status']
         if status != 'OK':
