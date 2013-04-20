@@ -11,7 +11,7 @@ from docc.configuration import Configuration
 
 from docc.credentials import Credentials
 from docc.service import Service
-from docc.droplet import Droplet
+from docc.droplet import Droplet, Status
 from docc.size import Size
 from docc.region import Region
 from docc.image import Image
@@ -49,6 +49,8 @@ def main():
             create_command(params)
         elif 'resize' == params.command:
             resize_command(params)
+        elif 'snapshot' == params.command:
+            snapshot_command(params)
         else:
             raise Exception(
                 "Unknown command line command: '%s'" % params.command)
@@ -196,6 +198,18 @@ def parse_arguments():
     )
     parser_resize.add_argument('id', metavar='ID', type=int)
     parser_resize.add_argument('size', metavar='SIZE', type=int)
+
+    # Create a parser to 'snapshot' a given droplet
+    parser_snapshot = command_parsers.add_parser(
+        'snapshot',
+        help='a given droplet'
+    )
+    parser_snapshot.add_argument(
+        'id',
+        metavar='ID',
+        type=int,
+        help='The identifier for the droplet you want to snapshot')
+    parser_snapshot.add_argument('name', metavar='NAME', type=str, nargs="?")
 
     return main_parser.parse_args()
 
@@ -390,6 +404,20 @@ def resize_command(parameters):
         print "Resize of droplet %s was successful" % droplet_id
     else:
         print "Resize of droplet %s failed" % droplet_id
+
+
+def snapshot_command(parameters):
+    droplet_id = parameters.id
+    name = parameters.name
+    service = get_service()
+    droplet = Droplet.get(service, droplet_id)
+    if droplet.status != Status.OFF:
+        print "Droplet %s is not OFF. Consider using 'shutdown'"
+        return
+    if droplet.snapshot(service, name):
+        print "Droplet %s snapshot was successful" % droplet_id
+    else:
+        print "Ddroplet %s snapshot failed" % droplet_id
 
 
 if __name__ == "__main__":

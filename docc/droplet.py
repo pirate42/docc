@@ -166,6 +166,20 @@ class Droplet(object):
         status = response['status']
         return status == 'OK'
 
+    def snapshot(self, service, name=None):
+        """Take a snapshot image of this droplet
+
+        :param name: is an optional name for the snapshot
+        """
+        params = {}
+        if name is not None:
+            params = {
+                'name': name
+            }
+        response = service.get("droplets/%s/snapshot" % self.id, params)
+        status = response['status']
+        return status == 'OK'
+
     def destroy(self, service):
         """Destroy this droplet"""
         response = service.get("droplets/%s/destroy" % self.id)
