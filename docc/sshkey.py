@@ -34,6 +34,13 @@ class SSHKey(object):
         status = response['status']
         return status == 'OK'
 
+    def details(self):
+        return "Id: %s\nName: %s\nPublic key: %s" % (
+            self.id,
+            self.name,
+            self.public
+        )
+
     @staticmethod
     def get(service, identifier):
         """Return the Image given an identifier and None if not found.
@@ -51,6 +58,19 @@ class SSHKey(object):
         )
 
         return i
+
+    @staticmethod
+    def create(service, name, public):
+        params = {
+            'name': name,
+            'ssh_pub_key': public,
+        }
+        response = service.get('ssh_keys/new', params)
+        status = response['status']
+        if status == 'OK':
+            droplet_id = response['ssh_key']['id']
+            return SSHKey.get(service, droplet_id)
+        return None
 
     @staticmethod
     def keys(service):

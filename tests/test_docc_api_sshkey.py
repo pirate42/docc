@@ -1,7 +1,7 @@
 # coding=utf-8
 import unittest
 
-from mock import MagicMock
+from mock import MagicMock, call
 
 from docc.sshkey import SSHKey
 from docc.credentials import Credentials
@@ -108,6 +108,46 @@ class TestSSHKey(unittest.TestCase):
         self.assertEquals(key.id, 1)
         self.assertEquals(key.name, 'Name 1')
         self.assertEquals(key.public, "asr2354tegrh23425erfwerwerffghrgh3455")
+
+
+    def test_create(self):
+        credentials = Credentials("abc", "def")
+        service = Service(credentials)
+        response = {
+            'status': 'OK',
+            'ssh_key': {
+                'name': 'Name 1',
+                'id': 1,
+                'ssh_pub_key': "asr2354tegrh23425erfwerwerffghrgh3455"
+            },
+        }
+
+        mock = MagicMock(return_value=response)
+        service.get = mock
+        key = SSHKey.create(
+            service,
+            "Name 1",
+            "asr2354tegrh23425erfwerwerffghrgh3455"
+        )
+        self.assertEquals(key.id, 1)
+        self.assertEquals(key.name, 'Name 1')
+        self.assertEquals(key.public, "asr2354tegrh23425erfwerwerffghrgh3455")
+        mock.assert_has_calls(
+            [
+                call(
+                    'ssh_keys/new',
+                    {
+                        "name": "Name 1",
+                        "ssh_pub_key": "asr2354tegrh23425erfwerwerffghrgh3455"
+                    })
+            ]
+        )
+
+    def test_details(self):
+        key = SSHKey(1, "toto", "ssh-rsa dfwerwe324fsdf toto@example.com")
+        expected = "Id: 1\nName: toto\n" \
+                   "Public key: ssh-rsa dfwerwe324fsdf toto@example.com"
+        self.assertEquals(key.details(), expected)
 
 
 if __name__ == '__main__':
