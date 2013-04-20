@@ -6,7 +6,7 @@ Docc stands for Digital Ocean Command Center and provides library
 and scripts to manipulate Digital Ocean droplets, ssh keys, etc. 
 via the provided API.
 
-Typical usage of the often looks like this::
+Typical usage of the API often looks like this::
 
     #!/usr/bin/env python
 
