@@ -47,6 +47,8 @@ def main():
             droplet_operation(params)
         elif 'create' == params.command:
             create_command(params)
+        elif 'edit' == params.command:
+            edit_command(params)
         elif 'resize' == params.command:
             resize_command(params)
         elif 'snapshot' == params.command:
@@ -191,10 +193,39 @@ def parse_arguments():
         help='create a new SSH key'
     )
     create_key_parser.add_argument(
-        'name', metavar='NAME', type=str, nargs=1
+        'name',
+        metavar='NAME',
+        type=str
     )
     create_key_parser.add_argument(
-        'public', metavar='PUBLIC_KEY', type=str, nargs="+"
+        'public',
+        metavar='PUBLIC_KEY',
+        type=str,
+        help='The public key (make sure to use quotes if it contain spaces)'
+    )
+
+    # Create a parser to 'edit' objects (ssh keys for now).
+    parser_edit = command_parsers.add_parser(
+        'edit',
+        help='different Digital Ocean objects'
+    )
+    edit_command_parsers = parser_edit.add_subparsers(
+        dest='type'
+    )
+    edit_key_parser = edit_command_parsers.add_parser(
+        'key',
+        help='edit an existing SSH key'
+    )
+    edit_key_parser.add_argument(
+        'id',
+        metavar='ID',
+        type=int
+    )
+    edit_key_parser.add_argument(
+        'public',
+        metavar='PUBLIC_KEY',
+        type=str,
+        help='The public key (make sure to use quotes if it contain spaces)'
     )
 
     # Create a parser for the 'resize' command
@@ -425,8 +456,8 @@ def create_key(parameters):
     service = get_service()
     print SSHKey.create(
         service=service,
-        name=parameters.name[0],
-        public=reduce(lambda x, y: str(x) + ' ' + str(y), parameters.public)
+        name=parameters.name,
+        public=parameters.public
     )
 
 
@@ -435,6 +466,22 @@ def create_command(parameters):
         create_droplet(parameters)
     elif parameters.type == 'key':
         create_key(parameters)
+
+
+def edit_key(parameters):
+    service = get_service()
+    key_id = parameters.id
+    public = parameters.public
+    key = SSHKey.get(service, key_id)
+    if key.edit(service, public):
+        print "Editing of key %s was successful" % key_id
+    else:
+        print "Editing of key %s failed" % key_id
+
+
+def edit_command(parameters):
+    if parameters.type == 'key':
+        edit_key(parameters)
 
 
 def resize_command(parameters):

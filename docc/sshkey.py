@@ -72,6 +72,15 @@ class SSHKey(object):
             return SSHKey.get(service, droplet_id)
         return None
 
+    def edit(self, service, public):
+        params = {
+            'ssh_pub_key': public,
+        }
+        response = service.get('ssh_keys/%s/edit' % self.id, params)
+        status = response['status']
+        return 'OK' == status
+
+
     @staticmethod
     def keys(service):
         """Return the a list containing all the available SSH keys.
