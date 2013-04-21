@@ -4,7 +4,7 @@
 """This script allows you to interact with Digital Ocean API via command line.
 """
 
-import argparse
+from argparse import ArgumentParser
 import sys
 
 from docc.configuration import Configuration
@@ -37,13 +37,17 @@ def main():
             show_command(params)
         elif 'destroy' == params.command:
             destroy_command(params)
-        elif ('shutdown' == params.command or
-                      'power_off' == params.command or
-                      'power_on' == params.command or
-                      'power_cycle' == params.command or
-                      'reboot' == params.command or
-                      'password_reset' == params.command
-        ):
+        elif 'shutdown' == params.command:
+            droplet_operation(params)
+        elif 'power_off' == params.command:
+            droplet_operation(params)
+        elif 'power_on' == params.command:
+            droplet_operation(params)
+        elif 'power_cycle' == params.command:
+            droplet_operation(params)
+        elif 'reboot' == params.command:
+            droplet_operation(params)
+        elif 'password_reset' == params.command:
             droplet_operation(params)
         elif 'create' == params.command:
             create_command(params)
@@ -68,16 +72,26 @@ def main():
         print "Error: %s." % e
 
 
+class MyArgumentParser(ArgumentParser):
+    def error(self, message):
+        self.print_help(sys.stderr)
+        print >> sys.stderr
+        self.exit(2, '%s: error: %s\n' % (self.prog, message))
+
+
 def parse_arguments():
-    """Create the argument parser and parse the command line parameters"""
+    """Parses the command line parameters"""
 
     # Create the top-level parser
-    main_parser = argparse.ArgumentParser(
+    main_parser = MyArgumentParser(
         description="This script lets you interact with Digital Ocean "
-                    "droplets and associated objects."
+                    "droplets and associated objects.",
     )
     command_parsers = main_parser.add_subparsers(
-        help='commands:', dest='command'
+        description="Valid commands",
+        help='description',
+        dest='command',
+        metavar='<command>'
     )
 
     # Create a parser for the 'init' command
@@ -88,10 +102,11 @@ def parse_arguments():
     # Create a parser for the 'list' command
     parser_list = command_parsers.add_parser(
         'list',
-        help='different Digital Ocean objects'
+        help='droplets, keys, regions, images, or sizes'
     )
     list_command_parsers = parser_list.add_subparsers(
-        dest='type'
+        dest='type',
+        metavar='<object type>'
     )
     for object_type, description in [
         ('droplets', 'droplets'),
@@ -104,28 +119,13 @@ def parse_arguments():
     ]:
         list_command_parsers.add_parser(
             object_type,
-            help="list %s" % description
+            help="list %s" % description,
         )
-
-    # Parsers for different operations on droplets
-    for operation in [
-        'shutdown',
-        'power_cycle',
-        'power_off',
-        'power_on',
-        'reboot',
-        'password_reset'
-    ]:
-        local_parser = command_parsers.add_parser(
-            operation,
-            help='one or more droplets given identifiers'
-        )
-        local_parser.add_argument('ids', metavar='ID', type=int, nargs='+')
 
     # Create a parser for the 'show' command
     parser_show = command_parsers.add_parser(
         'show',
-        help='details for different Digital Ocean objects'
+        help='details for droplets, or SSH keys'
     )
     show_command_parsers = parser_show.add_subparsers(
         dest='type'
@@ -140,10 +140,212 @@ def parse_arguments():
         )
         local_parser.add_argument('ids', metavar='ID', type=int, nargs="+")
 
+    # Create a parser for the 'create' command
+    parser_create = command_parsers.add_parser(
+        'create',
+        help='a new droplet, or a new SSH key'
+    )
+    create_command_parsers = parser_create.add_subparsers(
+        dest='type'
+    )
+
+    create_droplet_parser = create_command_parsers.add_parser(
+        'droplet',
+        help='create a new droplet'
+    )
+    create_droplet_parser.add_argument(
+        'name',
+        metavar='NAME',
+        type=str,
+        nargs=1,
+        help="of the new droplet"
+    )
+    create_droplet_parser.add_argument(
+        'size',
+        metavar='SIZE_ID',
+        type=int,
+        nargs=1,
+        help="for the size you want to use. See 'list sizes'"
+    )
+    create_droplet_parser.add_argument(
+        'image',
+        metavar='IMAGE_ID',
+        type=int,
+        nargs=1,
+        help="for the image you want to use. See 'list images'"
+    )
+    create_droplet_parser.add_argument(
+        'region',
+        metavar='REGION_ID',
+        type=int,
+        nargs=1,
+        help="where the droplet will be stored. See 'list regions'"
+    )
+    create_droplet_parser.add_argument(
+        'keys',
+        metavar='KEY_ID',
+        type=int,
+        nargs="*",
+        help="zero or more SSH keys. See 'list keys'"
+    )
+
+    create_key_parser = create_command_parsers.add_parser(
+        'key',
+        help='create a new SSH key'
+    )
+    create_key_parser.add_argument(
+        'name',
+        metavar='NAME',
+        type=str,
+        help="of the new key"
+    )
+    create_key_parser.add_argument(
+        'public',
+        metavar='PUBLIC_KEY',
+        type=str,
+        help='The public key (make sure to use quotes if it contain spaces)'
+    )
+
+    # Parsers for different operations on droplets
+    for (operation, description) in [
+        ('shutdown', "shutdown"),
+        ('power_cycle', "power off and then on"),
+        ('power_off', "power off"),
+        ('power_on', "power on"),
+        ('reboot', "reboot"),
+        ('password_reset', "reset root password for"),
+    ]:
+        local_parser = command_parsers.add_parser(
+            operation,
+            help='one or more droplets'
+        )
+        local_parser.add_argument(
+            'ids',
+            metavar='ID',
+            type=int,
+            nargs='+',
+            help="for one or more droplets you want to %s" % description
+        )
+
+    # Create a parser for the 'resize' command
+    parser_resize = command_parsers.add_parser(
+        'resize',
+        help='a given droplet'
+    )
+    parser_resize.add_argument(
+        'id',
+        metavar='ID',
+        type=int,
+        help="The identifier for the droplet you want to resize')")
+    parser_resize.add_argument(
+        'size',
+        metavar='SIZE',
+        type=int,
+        help="for the size you want to use. See 'list sizes'"
+    )
+
+    # Create a parser to 'snapshot' a given droplet
+    parser_snapshot = command_parsers.add_parser(
+        'snapshot',
+        help='a given droplet'
+    )
+    parser_snapshot.add_argument(
+        'id',
+        metavar='ID',
+        type=int,
+        help='The identifier for the droplet you want to snapshot')
+    parser_snapshot.add_argument(
+        'name',
+        metavar='NAME',
+        type=str,
+        nargs="?",
+        help="the optional name for this snapshot")
+
+
+    # Create a parser for the 'restore' command
+    parser_restore = command_parsers.add_parser(
+        'restore',
+        help='a droplet with the given snapshot'
+    )
+    parser_restore.add_argument(
+        'id',
+        metavar='ID',
+        type=int,
+        help='The identifier for the droplet you want to restore'
+    )
+    parser_restore.add_argument(
+        'image',
+        metavar='MY_IMAGE',
+        type=int,
+        help="for the image you want to use. See 'list my_images'"
+    )
+
+    # Create a parser for the 'rebuild' command
+    parser_rebuild = command_parsers.add_parser(
+        'rebuild',
+        help='a droplet with the given default image'
+    )
+    parser_rebuild.add_argument(
+        'id',
+        metavar='ID',
+        type=int,
+        help='The identifier for the droplet you want to rebuild'
+    )
+    parser_rebuild.add_argument(
+        'image',
+        metavar='IMAGE',
+        type=int,
+        help="for the image you want to use. See 'list images'"
+    )
+
+    # Create a parser to change 'backup' status on a given droplet
+    parser_backups = command_parsers.add_parser(
+        'backups',
+        help='change backups status on a given droplet'
+    )
+    parser_backups.add_argument(
+        'id',
+        metavar='ID',
+        type=int,
+        help='The identifier for the droplet you want to backup or not')
+    parser_backups.add_argument(
+        'state',
+        metavar='STATE',
+        type=str,
+        choices=['on', 'off'],
+        help="Either 'on' or 'off'"
+    )
+
+    # Create a parser to 'edit' objects (ssh keys for now).
+    parser_edit = command_parsers.add_parser(
+        'edit',
+        help='existing SSH keys'
+    )
+    edit_command_parsers = parser_edit.add_subparsers(
+        dest='type'
+    )
+    edit_key_parser = edit_command_parsers.add_parser(
+        'key',
+        help='edit an existing SSH key'
+    )
+    edit_key_parser.add_argument(
+        'id',
+        metavar='ID',
+        type=int,
+        help="for the key you want to edit. See 'list keys'"
+    )
+    edit_key_parser.add_argument(
+        'public',
+        metavar='PUBLIC_KEY',
+        type=str,
+        help='The public key (make sure to use quotes if it contain spaces)'
+    )
+
+
     # Create a parser for the 'destroy' command
     parser_destroy = command_parsers.add_parser(
         'destroy',
-        help='different Digital Ocean objects'
+        help='droplets, images, or SSH keys'
     )
     destroy_command_parsers = parser_destroy.add_subparsers(
         dest='type'
@@ -157,130 +359,13 @@ def parse_arguments():
             object_type,
             help='destroy %s given list of identifiers' % description
         )
-        local_parser.add_argument('ids', metavar='ID', type=int, nargs="+")
-
-    # Create a parser for the 'create' command
-    parser_create = command_parsers.add_parser(
-        'create',
-        help='different Digital Ocean objects'
-    )
-    create_command_parsers = parser_create.add_subparsers(
-        dest='type'
-    )
-
-    create_droplet_parser = create_command_parsers.add_parser(
-        'droplet',
-        help='create a new droplet'
-    )
-    create_droplet_parser.add_argument(
-        'name', metavar='NAME', type=str, nargs=1
-    )
-    create_droplet_parser.add_argument(
-        'size', metavar='SIZE_ID', type=int, nargs=1
-    )
-    create_droplet_parser.add_argument(
-        'image', metavar='IMAGE_ID', type=int, nargs=1
-    )
-    create_droplet_parser.add_argument(
-        'region', metavar='REGION_ID', type=int, nargs=1
-    )
-    create_droplet_parser.add_argument(
-        'keys', metavar='KEY_ID', type=int, nargs="*"
-    )
-
-    create_key_parser = create_command_parsers.add_parser(
-        'key',
-        help='create a new SSH key'
-    )
-    create_key_parser.add_argument(
-        'name',
-        metavar='NAME',
-        type=str
-    )
-    create_key_parser.add_argument(
-        'public',
-        metavar='PUBLIC_KEY',
-        type=str,
-        help='The public key (make sure to use quotes if it contain spaces)'
-    )
-
-    # Create a parser to 'edit' objects (ssh keys for now).
-    parser_edit = command_parsers.add_parser(
-        'edit',
-        help='different Digital Ocean objects'
-    )
-    edit_command_parsers = parser_edit.add_subparsers(
-        dest='type'
-    )
-    edit_key_parser = edit_command_parsers.add_parser(
-        'key',
-        help='edit an existing SSH key'
-    )
-    edit_key_parser.add_argument(
-        'id',
-        metavar='ID',
-        type=int
-    )
-    edit_key_parser.add_argument(
-        'public',
-        metavar='PUBLIC_KEY',
-        type=str,
-        help='The public key (make sure to use quotes if it contain spaces)'
-    )
-
-    # Create a parser for the 'resize' command
-    parser_resize = command_parsers.add_parser(
-        'resize',
-        help='a given droplet'
-    )
-    parser_resize.add_argument('id', metavar='ID', type=int)
-    parser_resize.add_argument('size', metavar='SIZE', type=int)
-
-    # Create a parser for the 'restore' command
-    parser_restore = command_parsers.add_parser(
-        'restore',
-        help='a droplet with the given snapshot'
-    )
-    parser_restore.add_argument('id', metavar='ID', type=int)
-    parser_restore.add_argument('image', metavar='IMAGE', type=int)
-
-    # Create a parser for the 'restore' command
-    parser_rebuild = command_parsers.add_parser(
-        'rebuild',
-        help='a droplet with the given default image'
-    )
-    parser_rebuild.add_argument('id', metavar='ID', type=int)
-    parser_rebuild.add_argument('image', metavar='IMAGE', type=int)
-
-    # Create a parser to 'snapshot' a given droplet
-    parser_snapshot = command_parsers.add_parser(
-        'snapshot',
-        help='a given droplet'
-    )
-    parser_snapshot.add_argument(
-        'id',
-        metavar='ID',
-        type=int,
-        help='The identifier for the droplet you want to snapshot')
-    parser_snapshot.add_argument('name', metavar='NAME', type=str, nargs="?")
-
-    # Create a parser to change 'backup' status on a given droplet
-    parser_backups = command_parsers.add_parser(
-        'backups',
-        help='change backups status on a given droplet'
-    )
-    parser_backups.add_argument(
-        'id',
-        metavar='ID',
-        type=int,
-        help='The identifier for the droplet you want to snapshot')
-    parser_backups.add_argument(
-        'state',
-        metavar='STATE',
-        type=str,
-        choices=['on', 'off'],
-        help="Either 'on' or 'off'"
-    )
+        local_parser.add_argument(
+            'ids',
+            metavar='ID',
+            type=int,
+            nargs="+",
+            help="for the %s you want to destroy" % description
+        )
 
     return main_parser.parse_args()
 
@@ -305,8 +390,9 @@ def init_command():
     """
     configuration = Configuration()
     print "Retrieve 'Client Key' and 'API Key' from " \
-          "https://www.digitalocean.com/api_access and enter them below." \
-          " They will be stored in %s\n" % configuration._location
+          "https://www.digitalocean.com/api_access\n" \
+          "and enter them below. They will be stored in " \
+          "%s\n" % configuration._location
     client_id = raw_input("Client Key: ")
     api_key = raw_input("API Key: ")
 
@@ -318,7 +404,8 @@ def init_command():
         configuration['client_id'] = client_id
         configuration['api_key'] = api_key
     except APIError:
-        print "Unable to connect to Digital Ocean. Not storing credentials."
+        print "\nUnable to connect to Digital Ocean with those credentials."
+        print "Those credentials will not be stored."
         sys.exit(1)
 
 
