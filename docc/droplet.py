@@ -178,6 +178,20 @@ class Droplet(object):
         status = response['status']
         return status == 'OK'
 
+
+    def set_backups(self, service, state):
+        """Enable or disable backups on a this droplet
+
+        :param state: The boolean use to set the backups state
+        """
+        verb = 'disable'
+        if state:
+            verb = 'enable'
+        response = service.get("droplets/%s/%s_backups" % (self.id, verb))
+        status = response['status']
+        return status == 'OK'
+
+
     def rebuild(self, service, image_id):
         """Rebuild this droplet with the given image
 
