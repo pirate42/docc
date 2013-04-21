@@ -30,5 +30,5 @@ Typical usage of the script looks like::
     Docc -- Digital Ocean Command Center
 
     Droplets:
-      - 152746: TestA, off, 198.199.73.143, 512MB
+      - 152746: TestA, off, 198.199.73.143
 
