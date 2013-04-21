@@ -53,6 +53,8 @@ def main():
             snapshot_command(params)
         elif 'restore' == params.command:
             restore_command(params)
+        elif 'rebuild' == params.command:
+            rebuild_command(params)
         else:
             raise Exception(
                 "Unknown command line command: '%s'" % params.command)
@@ -204,10 +206,18 @@ def parse_arguments():
     # Create a parser for the 'restore' command
     parser_restore = command_parsers.add_parser(
         'restore',
-        help='a droplet with the given image'
+        help='a droplet with the given snapshot'
     )
     parser_restore.add_argument('id', metavar='ID', type=int)
     parser_restore.add_argument('image', metavar='IMAGE', type=int)
+
+    # Create a parser for the 'restore' command
+    parser_rebuild = command_parsers.add_parser(
+        'rebuild',
+        help='a droplet with the given default image'
+    )
+    parser_rebuild.add_argument('id', metavar='ID', type=int)
+    parser_rebuild.add_argument('image', metavar='IMAGE', type=int)
 
     # Create a parser to 'snapshot' a given droplet
     parser_snapshot = command_parsers.add_parser(
@@ -446,6 +456,24 @@ def restore_command(parameters):
         print "Droplet %s restore was successful" % droplet_id
     else:
         print "Droplet %s restore failed" % droplet_id
+
+
+def rebuild_command(parameters):
+    droplet_id = parameters.id
+    image_id = parameters.image
+    service = get_service()
+    droplet = Droplet.get(service, droplet_id)
+    #if droplet.status != Status.OFF:
+    #    print "Droplet %s is not OFF. Consider using 'shutdown'"
+    #    return
+
+    # Check if the image exists
+    Image.get(service, image_id)
+
+    if droplet.rebuild(service, image_id):
+        print "Droplet %s rebuild was successful" % droplet_id
+    else:
+        print "Droplet %s rebuild failed" % droplet_id
 
 
 if __name__ == "__main__":
