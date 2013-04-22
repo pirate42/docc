@@ -138,7 +138,13 @@ def parse_arguments():
             object_type,
             help='show %s details given list of identifiers' % description
         )
-        local_parser.add_argument('ids', metavar='ID', type=int, nargs="+")
+        local_parser.add_argument(
+            'ids',
+            metavar='ID',
+            type=int,
+            nargs="+",
+            help="for the %s you want to show in detail" % description
+        )
 
     # Create a parser for the 'create' command
     parser_create = command_parsers.add_parser(
