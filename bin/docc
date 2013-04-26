@@ -603,7 +603,7 @@ def snapshot_command(parameters):
     service = get_service()
     droplet = Droplet.get(service, droplet_id)
     if droplet.status != Status.OFF:
-        print "Droplet %s is not OFF. Consider using 'shutdown'"
+        print "Droplet %s is not OFF. Consider using 'shutdown'" % droplet_id
         return
     if droplet.snapshot(service, name):
         print "Droplet %s snapshot was successful" % droplet_id
