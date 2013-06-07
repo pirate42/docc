@@ -44,6 +44,7 @@ class Droplet(object):
             ("IP Address", self.ip_address),
             ("Region", self.region),
             ("Backups", self.backups),
+            ("Status", self.status)
         ]
         result = ""
         sep = ""
