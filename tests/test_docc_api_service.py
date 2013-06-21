@@ -21,24 +21,25 @@ class TestService(unittest.TestCase):
         service = Service(credentials)
 
         class Response(object):
-            def __init__(self, response):
+            def __init__(self, response, ok):
                 self.response = response
+                self.ok = ok
 
             def json(self):
                 return self.response
 
         # Test where requests.get returns something with status: OK
         response = {'status': 'OK'}
-        mock = MagicMock(return_value=Response(response))
+        mock = MagicMock(return_value=Response(response, True))
         requests.get = mock
         self.assertEquals(service.get("test"), response)
 
-        # Test where requests.get returns something with status: OK
+        # Test where requests.get returns something with status: ERROR
         response = {
             "status": "ERROR",
             "description": "Unable to verify credentials. #414LB"
         }
-        mock = MagicMock(return_value=Response(response))
+        mock = MagicMock(return_value=Response(response, True))
         requests.get = mock
         with self.assertRaises(APIError):
             service.get("test")
@@ -54,7 +55,7 @@ class TestService(unittest.TestCase):
             "status": "ERROR",
             "description": "Unable to verify credentials. #414LB"
         }
-        mock = MagicMock(return_value=Response(response))
+        mock = MagicMock(return_value=Response(response, True))
         requests.get = mock
         with self.assertRaises(APIError):
             service.get("test")
