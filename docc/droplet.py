@@ -36,11 +36,15 @@ class Droplet(object):
             self.id, self.name, self.status, self.ip_address)
 
     def details(self):
+        if self.image is None:
+            image = "Unknown"
+        else:
+            image = self.image
         fields = [
             ("Id", self.id),
             ("Name", self.name),
             ("Size", self.size),
-            ("Image", self.image),
+            ("Image", image),
             ("IP Address", self.ip_address),
             ("Region", self.region),
             ("Backups", self.backups),

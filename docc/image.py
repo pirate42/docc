@@ -1,5 +1,7 @@
 # coding=utf-8
 
+from docc.exceptions import APIError
+
 
 class Image(object):
     """Represent an Image object (name and distribution information)"""
@@ -38,7 +40,11 @@ class Image(object):
         :param service: The service object for the Digital Ocean account
         that holds the images
         """
-        response = service.get('images/%s' % identifier)
+        try:
+            response = service.get('images/%s' % identifier)
+        except APIError as e:
+            return None
+
         encoded_image = response['image']
         i = Image(encoded_image['id'],
                   encoded_image['name'],
